@@ -1,3 +1,37 @@
+// // // // // // // // // // // const express = require("express");
+// // // // // // // // // // // const dotenv = require("dotenv");
+// // // // // // // // // // // const cors = require("cors");
+
+// // // // // // // // // // // const connectDB = require("./config/db");
+// // // // // // // // // // // const authRoutes = require("./routes/authRoutes");
+
+// // // // // // // // // // // dotenv.config();
+
+// // // // // // // // // // // connectDB();
+
+// // // // // // // // // // // const app = express();
+
+// // // // // // // // // // // app.use(cors());
+
+// // // // // // // // // // // app.use(express.json());
+
+// // // // // // // // // // // app.use(express.urlencoded({ extended: true }));
+
+// // // // // // // // // // // app.get("/", (req, res) => {
+
+// // // // // // // // // // //     res.send("Saiyed Travels Backend Running...");
+
+// // // // // // // // // // // });
+
+// // // // // // // // // // // const PORT = process.env.PORT || 5000;
+
+// // // // // // // // // // // app.listen(PORT, () => {
+
+// // // // // // // // // // //     console.log(`Server Running On Port ${PORT}`);
+
+// // // // // // // // // // // });
+
+
 // // // // // // // // // // const express = require("express");
 // // // // // // // // // // const dotenv = require("dotenv");
 // // // // // // // // // // const cors = require("cors");
@@ -7,27 +41,76 @@
 
 // // // // // // // // // // dotenv.config();
 
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // DATABASE
+// // // // // // // // // // // ==========================================
+
 // // // // // // // // // // connectDB();
+
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // EXPRESS APP
+// // // // // // // // // // // ==========================================
 
 // // // // // // // // // // const app = express();
 
-// // // // // // // // // // app.use(cors());
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // MIDDLEWARE
+// // // // // // // // // // // ==========================================
+
+// // // // // // // // // // app.use(
+// // // // // // // // // //   cors({
+// // // // // // // // // //     origin: "http://localhost:5173",
+// // // // // // // // // //     credentials: true,
+// // // // // // // // // //   })
+// // // // // // // // // // );
 
 // // // // // // // // // // app.use(express.json());
 
-// // // // // // // // // // app.use(express.urlencoded({ extended: true }));
+// // // // // // // // // // app.use(
+// // // // // // // // // //   express.urlencoded({
+// // // // // // // // // //     extended: true,
+// // // // // // // // // //   })
+// // // // // // // // // // );
+
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // ROOT ROUTE
+// // // // // // // // // // // ==========================================
 
 // // // // // // // // // // app.get("/", (req, res) => {
 
-// // // // // // // // // //     res.send("Saiyed Travels Backend Running...");
+// // // // // // // // // //   res.send(
+// // // // // // // // // //     "Saiyed Travels Backend Running..."
+// // // // // // // // // //   );
 
 // // // // // // // // // // });
 
-// // // // // // // // // // const PORT = process.env.PORT || 5000;
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // AUTH ROUTES
+// // // // // // // // // // // ==========================================
+
+// // // // // // // // // // app.use(
+// // // // // // // // // //   "/api/auth",
+// // // // // // // // // //   authRoutes
+// // // // // // // // // // );
+
+
+// // // // // // // // // // // ==========================================
+// // // // // // // // // // // SERVER
+// // // // // // // // // // // ==========================================
+
+// // // // // // // // // // const PORT =
+// // // // // // // // // //   process.env.PORT || 5000;
 
 // // // // // // // // // // app.listen(PORT, () => {
 
-// // // // // // // // // //     console.log(`Server Running On Port ${PORT}`);
+// // // // // // // // // //   console.log(
+// // // // // // // // // //     `Server Running On Port ${PORT}`
+// // // // // // // // // //   );
 
 // // // // // // // // // // });
 
@@ -37,7 +120,14 @@
 // // // // // // // // // const cors = require("cors");
 
 // // // // // // // // // const connectDB = require("./config/db");
+
 // // // // // // // // // const authRoutes = require("./routes/authRoutes");
+// // // // // // // // // const flightRoutes = require("./routes/flightRoutes");
+
+
+// // // // // // // // // // ==========================================
+// // // // // // // // // // ENVIRONMENT
+// // // // // // // // // // ==========================================
 
 // // // // // // // // // dotenv.config();
 
@@ -100,11 +190,22 @@
 
 
 // // // // // // // // // // ==========================================
+// // // // // // // // // // FLIGHT ROUTES
+// // // // // // // // // // ==========================================
+
+// // // // // // // // // app.use(
+// // // // // // // // //   "/api/flights",
+// // // // // // // // //   flightRoutes
+// // // // // // // // // );
+
+
+// // // // // // // // // // ==========================================
 // // // // // // // // // // SERVER
 // // // // // // // // // // ==========================================
 
 // // // // // // // // // const PORT =
 // // // // // // // // //   process.env.PORT || 5000;
+
 
 // // // // // // // // // app.listen(PORT, () => {
 
@@ -115,6 +216,7 @@
 // // // // // // // // // });
 
 
+
 // // // // // // // // const express = require("express");
 // // // // // // // // const dotenv = require("dotenv");
 // // // // // // // // const cors = require("cors");
@@ -123,6 +225,7 @@
 
 // // // // // // // // const authRoutes = require("./routes/authRoutes");
 // // // // // // // // const flightRoutes = require("./routes/flightRoutes");
+// // // // // // // // const userRoutes = require("./routes/userRoutes");
 
 
 // // // // // // // // // ==========================================
@@ -200,6 +303,17 @@
 
 
 // // // // // // // // // ==========================================
+// // // // // // // // // USER ROUTES
+// // // // // // // // // ADMIN ONLY
+// // // // // // // // // ==========================================
+
+// // // // // // // // app.use(
+// // // // // // // //   "/api/users",
+// // // // // // // //   userRoutes
+// // // // // // // // );
+
+
+// // // // // // // // // ==========================================
 // // // // // // // // // SERVER
 // // // // // // // // // ==========================================
 
@@ -227,13 +341,11 @@
 // // // // // // // const flightRoutes = require("./routes/flightRoutes");
 // // // // // // // const userRoutes = require("./routes/userRoutes");
 
-
 // // // // // // // // ==========================================
 // // // // // // // // ENVIRONMENT
 // // // // // // // // ==========================================
 
 // // // // // // // dotenv.config();
-
 
 // // // // // // // // ==========================================
 // // // // // // // // DATABASE
@@ -241,24 +353,63 @@
 
 // // // // // // // connectDB();
 
-
 // // // // // // // // ==========================================
 // // // // // // // // EXPRESS APP
 // // // // // // // // ==========================================
 
 // // // // // // // const app = express();
 
+// // // // // // // // ==========================================
+// // // // // // // // CORS
+// // // // // // // // ==========================================
 
-// // // // // // // // ==========================================
-// // // // // // // // MIDDLEWARE
-// // // // // // // // ==========================================
+// // // // // // // const allowedOrigins = [
+// // // // // // //   "http://localhost:5173",
+// // // // // // //   "http://localhost:5174",
+// // // // // // //   "http://localhost:5175",
+// // // // // // // ];
 
 // // // // // // // app.use(
 // // // // // // //   cors({
-// // // // // // //     origin: "http://localhost:5173",
+// // // // // // //     origin: function (origin, callback) {
+// // // // // // //       // Allow requests without origin
+// // // // // // //       // such as Postman/server-to-server
+// // // // // // //       if (!origin) {
+// // // // // // //         return callback(null, true);
+// // // // // // //       }
+
+// // // // // // //       if (allowedOrigins.includes(origin)) {
+// // // // // // //         return callback(null, true);
+// // // // // // //       }
+
+// // // // // // //       return callback(
+// // // // // // //         new Error(
+// // // // // // //           `CORS blocked for origin: ${origin}`
+// // // // // // //         )
+// // // // // // //       );
+// // // // // // //     },
+
 // // // // // // //     credentials: true,
+
+// // // // // // //     methods: [
+// // // // // // //       "GET",
+// // // // // // //       "POST",
+// // // // // // //       "PUT",
+// // // // // // //       "PATCH",
+// // // // // // //       "DELETE",
+// // // // // // //       "OPTIONS",
+// // // // // // //     ],
+
+// // // // // // //     allowedHeaders: [
+// // // // // // //       "Content-Type",
+// // // // // // //       "Authorization",
+// // // // // // //     ],
 // // // // // // //   })
 // // // // // // // );
+
+// // // // // // // // ==========================================
+// // // // // // // // BODY PARSER
+// // // // // // // // ==========================================
 
 // // // // // // // app.use(express.json());
 
@@ -268,19 +419,15 @@
 // // // // // // //   })
 // // // // // // // );
 
-
 // // // // // // // // ==========================================
 // // // // // // // // ROOT ROUTE
 // // // // // // // // ==========================================
 
 // // // // // // // app.get("/", (req, res) => {
-
-// // // // // // //   res.send(
+// // // // // // //   res.status(200).send(
 // // // // // // //     "Saiyed Travels Backend Running..."
 // // // // // // //   );
-
 // // // // // // // });
-
 
 // // // // // // // // ==========================================
 // // // // // // // // AUTH ROUTES
@@ -291,7 +438,6 @@
 // // // // // // //   authRoutes
 // // // // // // // );
 
-
 // // // // // // // // ==========================================
 // // // // // // // // FLIGHT ROUTES
 // // // // // // // // ==========================================
@@ -301,10 +447,8 @@
 // // // // // // //   flightRoutes
 // // // // // // // );
 
-
 // // // // // // // // ==========================================
 // // // // // // // // USER ROUTES
-// // // // // // // // ADMIN ONLY
 // // // // // // // // ==========================================
 
 // // // // // // // app.use(
@@ -312,6 +456,36 @@
 // // // // // // //   userRoutes
 // // // // // // // );
 
+// // // // // // // // ==========================================
+// // // // // // // // ERROR HANDLER
+// // // // // // // // ==========================================
+
+// // // // // // // app.use(
+// // // // // // //   (err, req, res, next) => {
+// // // // // // //     console.error(
+// // // // // // //       "Server Error:",
+// // // // // // //       err.message
+// // // // // // //     );
+
+// // // // // // //     if (
+// // // // // // //       err.message &&
+// // // // // // //       err.message.startsWith(
+// // // // // // //         "CORS blocked"
+// // // // // // //       )
+// // // // // // //     ) {
+// // // // // // //       return res.status(403).json({
+// // // // // // //         success: false,
+// // // // // // //         message: err.message,
+// // // // // // //       });
+// // // // // // //     }
+
+// // // // // // //     res.status(500).json({
+// // // // // // //       success: false,
+// // // // // // //       message:
+// // // // // // //         "Internal server error.",
+// // // // // // //     });
+// // // // // // //   }
+// // // // // // // );
 
 // // // // // // // // ==========================================
 // // // // // // // // SERVER
@@ -320,13 +494,16 @@
 // // // // // // // const PORT =
 // // // // // // //   process.env.PORT || 5000;
 
-
 // // // // // // // app.listen(PORT, () => {
-
 // // // // // // //   console.log(
 // // // // // // //     `Server Running On Port ${PORT}`
 // // // // // // //   );
 
+// // // // // // //   console.log(
+// // // // // // //     `Allowed Frontend Origins: ${allowedOrigins.join(
+// // // // // // //       ", "
+// // // // // // //     )}`
+// // // // // // //   );
 // // // // // // // });
 
 
@@ -340,6 +517,7 @@
 // // // // // // const authRoutes = require("./routes/authRoutes");
 // // // // // // const flightRoutes = require("./routes/flightRoutes");
 // // // // // // const userRoutes = require("./routes/userRoutes");
+// // // // // // const bookingRoutes = require("./routes/bookingRoutes");
 
 // // // // // // // ==========================================
 // // // // // // // ENVIRONMENT
@@ -372,8 +550,9 @@
 // // // // // // app.use(
 // // // // // //   cors({
 // // // // // //     origin: function (origin, callback) {
+
 // // // // // //       // Allow requests without origin
-// // // // // //       // such as Postman/server-to-server
+// // // // // //       // Example: Postman / server-to-server
 // // // // // //       if (!origin) {
 // // // // // //         return callback(null, true);
 // // // // // //       }
@@ -457,15 +636,41 @@
 // // // // // // );
 
 // // // // // // // ==========================================
+// // // // // // // BOOKING ROUTES
+// // // // // // // ==========================================
+
+// // // // // // app.use(
+// // // // // //   "/api/bookings",
+// // // // // //   bookingRoutes
+// // // // // // );
+
+// // // // // // // ==========================================
+// // // // // // // 404 ROUTE
+// // // // // // // ==========================================
+
+// // // // // // app.use((req, res) => {
+// // // // // //   res.status(404).json({
+// // // // // //     success: false,
+// // // // // //     message: "API route not found",
+// // // // // //     path: req.originalUrl,
+// // // // // //   });
+// // // // // // });
+
+// // // // // // // ==========================================
 // // // // // // // ERROR HANDLER
 // // // // // // // ==========================================
 
 // // // // // // app.use(
 // // // // // //   (err, req, res, next) => {
+
 // // // // // //     console.error(
 // // // // // //       "Server Error:",
 // // // // // //       err.message
 // // // // // //     );
+
+// // // // // //     // --------------------------------------
+// // // // // //     // CORS ERROR
+// // // // // //     // --------------------------------------
 
 // // // // // //     if (
 // // // // // //       err.message &&
@@ -479,9 +684,45 @@
 // // // // // //       });
 // // // // // //     }
 
+// // // // // //     // --------------------------------------
+// // // // // //     // MONGOOSE VALIDATION ERROR
+// // // // // //     // --------------------------------------
+
+// // // // // //     if (
+// // // // // //       err.name ===
+// // // // // //       "ValidationError"
+// // // // // //     ) {
+
+// // // // // //       return res.status(400).json({
+// // // // // //         success: false,
+// // // // // //         message:
+// // // // // //           "Validation error",
+// // // // // //         errors: err.errors,
+// // // // // //       });
+// // // // // //     }
+
+// // // // // //     // --------------------------------------
+// // // // // //     // DUPLICATE KEY ERROR
+// // // // // //     // --------------------------------------
+
+// // // // // //     if (err.code === 11000) {
+
+// // // // // //       return res.status(400).json({
+// // // // // //         success: false,
+// // // // // //         message:
+// // // // // //           "Duplicate booking data",
+// // // // // //         error: err.keyValue,
+// // // // // //       });
+// // // // // //     }
+
+// // // // // //     // --------------------------------------
+// // // // // //     // GENERAL ERROR
+// // // // // //     // --------------------------------------
+
 // // // // // //     res.status(500).json({
 // // // // // //       success: false,
 // // // // // //       message:
+// // // // // //         err.message ||
 // // // // // //         "Internal server error.",
 // // // // // //     });
 // // // // // //   }
@@ -495,14 +736,31 @@
 // // // // // //   process.env.PORT || 5000;
 
 // // // // // // app.listen(PORT, () => {
+
+// // // // // //   console.log(
+// // // // // //     "=========================================="
+// // // // // //   );
+
+// // // // // //   console.log(
+// // // // // //     "Saiyed Travels Backend"
+// // // // // //   );
+
 // // // // // //   console.log(
 // // // // // //     `Server Running On Port ${PORT}`
+// // // // // //   );
+
+// // // // // //   console.log(
+// // // // // //     `Backend URL: http://localhost:${PORT}`
 // // // // // //   );
 
 // // // // // //   console.log(
 // // // // // //     `Allowed Frontend Origins: ${allowedOrigins.join(
 // // // // // //       ", "
 // // // // // //     )}`
+// // // // // //   );
+
+// // // // // //   console.log(
+// // // // // //     "=========================================="
 // // // // // //   );
 // // // // // // });
 
@@ -549,16 +807,26 @@
 
 // // // // // app.use(
 // // // // //   cors({
-// // // // //     origin: function (origin, callback) {
-
-// // // // //       // Allow requests without origin
-// // // // //       // Example: Postman / server-to-server
+// // // // //     origin: function (
+// // // // //       origin,
+// // // // //       callback
+// // // // //     ) {
 // // // // //       if (!origin) {
-// // // // //         return callback(null, true);
+// // // // //         return callback(
+// // // // //           null,
+// // // // //           true
+// // // // //         );
 // // // // //       }
 
-// // // // //       if (allowedOrigins.includes(origin)) {
-// // // // //         return callback(null, true);
+// // // // //       if (
+// // // // //         allowedOrigins.includes(
+// // // // //           origin
+// // // // //         )
+// // // // //       ) {
+// // // // //         return callback(
+// // // // //           null,
+// // // // //           true
+// // // // //         );
 // // // // //       }
 
 // // // // //       return callback(
@@ -590,7 +858,9 @@
 // // // // // // BODY PARSER
 // // // // // // ==========================================
 
-// // // // // app.use(express.json());
+// // // // // app.use(
+// // // // //   express.json()
+// // // // // );
 
 // // // // // app.use(
 // // // // //   express.urlencoded({
@@ -599,17 +869,20 @@
 // // // // // );
 
 // // // // // // ==========================================
-// // // // // // ROOT ROUTE
+// // // // // // ROOT
 // // // // // // ==========================================
 
-// // // // // app.get("/", (req, res) => {
-// // // // //   res.status(200).send(
-// // // // //     "Saiyed Travels Backend Running..."
-// // // // //   );
-// // // // // });
+// // // // // app.get(
+// // // // //   "/",
+// // // // //   (req, res) => {
+// // // // //     res.status(200).send(
+// // // // //       "Saiyed Travels Backend Running..."
+// // // // //     );
+// // // // //   }
+// // // // // );
 
 // // // // // // ==========================================
-// // // // // // AUTH ROUTES
+// // // // // // AUTH
 // // // // // // ==========================================
 
 // // // // // app.use(
@@ -618,7 +891,7 @@
 // // // // // );
 
 // // // // // // ==========================================
-// // // // // // FLIGHT ROUTES
+// // // // // // FLIGHTS
 // // // // // // ==========================================
 
 // // // // // app.use(
@@ -627,7 +900,7 @@
 // // // // // );
 
 // // // // // // ==========================================
-// // // // // // USER ROUTES
+// // // // // // USERS
 // // // // // // ==========================================
 
 // // // // // app.use(
@@ -636,7 +909,7 @@
 // // // // // );
 
 // // // // // // ==========================================
-// // // // // // BOOKING ROUTES
+// // // // // // BOOKINGS
 // // // // // // ==========================================
 
 // // // // // app.use(
@@ -645,32 +918,20 @@
 // // // // // );
 
 // // // // // // ==========================================
-// // // // // // 404 ROUTE
-// // // // // // ==========================================
-
-// // // // // app.use((req, res) => {
-// // // // //   res.status(404).json({
-// // // // //     success: false,
-// // // // //     message: "API route not found",
-// // // // //     path: req.originalUrl,
-// // // // //   });
-// // // // // });
-
-// // // // // // ==========================================
 // // // // // // ERROR HANDLER
 // // // // // // ==========================================
 
 // // // // // app.use(
-// // // // //   (err, req, res, next) => {
-
+// // // // //   (
+// // // // //     err,
+// // // // //     req,
+// // // // //     res,
+// // // // //     next
+// // // // //   ) => {
 // // // // //     console.error(
 // // // // //       "Server Error:",
 // // // // //       err.message
 // // // // //     );
-
-// // // // //     // --------------------------------------
-// // // // //     // CORS ERROR
-// // // // //     // --------------------------------------
 
 // // // // //     if (
 // // // // //       err.message &&
@@ -680,49 +941,15 @@
 // // // // //     ) {
 // // // // //       return res.status(403).json({
 // // // // //         success: false,
-// // // // //         message: err.message,
-// // // // //       });
-// // // // //     }
-
-// // // // //     // --------------------------------------
-// // // // //     // MONGOOSE VALIDATION ERROR
-// // // // //     // --------------------------------------
-
-// // // // //     if (
-// // // // //       err.name ===
-// // // // //       "ValidationError"
-// // // // //     ) {
-
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
 // // // // //         message:
-// // // // //           "Validation error",
-// // // // //         errors: err.errors,
+// // // // //           err.message,
 // // // // //       });
 // // // // //     }
-
-// // // // //     // --------------------------------------
-// // // // //     // DUPLICATE KEY ERROR
-// // // // //     // --------------------------------------
-
-// // // // //     if (err.code === 11000) {
-
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
-// // // // //         message:
-// // // // //           "Duplicate booking data",
-// // // // //         error: err.keyValue,
-// // // // //       });
-// // // // //     }
-
-// // // // //     // --------------------------------------
-// // // // //     // GENERAL ERROR
-// // // // //     // --------------------------------------
 
 // // // // //     res.status(500).json({
 // // // // //       success: false,
+
 // // // // //       message:
-// // // // //         err.message ||
 // // // // //         "Internal server error.",
 // // // // //     });
 // // // // //   }
@@ -735,35 +962,20 @@
 // // // // // const PORT =
 // // // // //   process.env.PORT || 5000;
 
-// // // // // app.listen(PORT, () => {
+// // // // // app.listen(
+// // // // //   PORT,
+// // // // //   () => {
+// // // // //     console.log(
+// // // // //       `Server Running On Port ${PORT}`
+// // // // //     );
 
-// // // // //   console.log(
-// // // // //     "=========================================="
-// // // // //   );
-
-// // // // //   console.log(
-// // // // //     "Saiyed Travels Backend"
-// // // // //   );
-
-// // // // //   console.log(
-// // // // //     `Server Running On Port ${PORT}`
-// // // // //   );
-
-// // // // //   console.log(
-// // // // //     `Backend URL: http://localhost:${PORT}`
-// // // // //   );
-
-// // // // //   console.log(
-// // // // //     `Allowed Frontend Origins: ${allowedOrigins.join(
-// // // // //       ", "
-// // // // //     )}`
-// // // // //   );
-
-// // // // //   console.log(
-// // // // //     "=========================================="
-// // // // //   );
-// // // // // });
-
+// // // // //     console.log(
+// // // // //       `Allowed Frontend Origins: ${allowedOrigins.join(
+// // // // //         ", "
+// // // // //       )}`
+// // // // //     );
+// // // // //   }
+// // // // // );
 
 
 // // // // const express = require("express");
@@ -803,30 +1015,32 @@
 // // // //   "http://localhost:5173",
 // // // //   "http://localhost:5174",
 // // // //   "http://localhost:5175",
+// // // //   "http://localhost:5176",
+// // // //   "http://localhost:5177",
+// // // //   "http://localhost:5178",
+// // // //   "http://localhost:5179",
+// // // //   "http://localhost:3000",
 // // // // ];
 
 // // // // app.use(
 // // // //   cors({
-// // // //     origin: function (
-// // // //       origin,
-// // // //       callback
-// // // //     ) {
+// // // //     origin: function (origin, callback) {
+// // // //       // Allow requests without origin
+// // // //       // e.g. Postman
 // // // //       if (!origin) {
-// // // //         return callback(
-// // // //           null,
-// // // //           true
-// // // //         );
+// // // //         return callback(null, true);
 // // // //       }
 
+// // // //       // Allow listed frontend origins
+// // // //       if (allowedOrigins.includes(origin)) {
+// // // //         return callback(null, true);
+// // // //       }
+
+// // // //       // Allow localhost development ports
 // // // //       if (
-// // // //         allowedOrigins.includes(
-// // // //           origin
-// // // //         )
+// // // //         origin.startsWith("http://localhost:")
 // // // //       ) {
-// // // //         return callback(
-// // // //           null,
-// // // //           true
-// // // //         );
+// // // //         return callback(null, true);
 // // // //       }
 
 // // // //       return callback(
@@ -858,9 +1072,7 @@
 // // // // // BODY PARSER
 // // // // // ==========================================
 
-// // // // app.use(
-// // // //   express.json()
-// // // // );
+// // // // app.use(express.json());
 
 // // // // app.use(
 // // // //   express.urlencoded({
@@ -872,14 +1084,11 @@
 // // // // // ROOT
 // // // // // ==========================================
 
-// // // // app.get(
-// // // //   "/",
-// // // //   (req, res) => {
-// // // //     res.status(200).send(
-// // // //       "Saiyed Travels Backend Running..."
-// // // //     );
-// // // //   }
-// // // // );
+// // // // app.get("/", (req, res) => {
+// // // //   res.status(200).send(
+// // // //     "Saiyed Travels Backend Running..."
+// // // //   );
+// // // // });
 
 // // // // // ==========================================
 // // // // // AUTH
@@ -922,15 +1131,10 @@
 // // // // // ==========================================
 
 // // // // app.use(
-// // // //   (
-// // // //     err,
-// // // //     req,
-// // // //     res,
-// // // //     next
-// // // //   ) => {
+// // // //   (err, req, res, next) => {
 // // // //     console.error(
 // // // //       "Server Error:",
-// // // //       err.message
+// // // //       err
 // // // //     );
 
 // // // //     if (
@@ -941,15 +1145,14 @@
 // // // //     ) {
 // // // //       return res.status(403).json({
 // // // //         success: false,
-// // // //         message:
-// // // //           err.message,
+// // // //         message: err.message,
 // // // //       });
 // // // //     }
 
-// // // //     res.status(500).json({
+// // // //     return res.status(500).json({
 // // // //       success: false,
-
 // // // //       message:
+// // // //         err.message ||
 // // // //         "Internal server error.",
 // // // //     });
 // // // //   }
@@ -962,35 +1165,23 @@
 // // // // const PORT =
 // // // //   process.env.PORT || 5000;
 
-// // // // app.listen(
-// // // //   PORT,
-// // // //   () => {
-// // // //     console.log(
-// // // //       `Server Running On Port ${PORT}`
-// // // //     );
+// // // // app.listen(PORT, () => {
+// // // //   console.log(
+// // // //     `Server Running On Port ${PORT}`
+// // // //   );
 
-// // // //     console.log(
-// // // //       `Allowed Frontend Origins: ${allowedOrigins.join(
-// // // //         ", "
-// // // //       )}`
-// // // //     );
-// // // //   }
-// // // // );
+// // // //   console.log(
+// // // //     "CORS: Localhost development origins allowed"
+// // // //   );
+// // // // });
 
 
 // // // const express = require("express");
 // // // const dotenv = require("dotenv");
 // // // const cors = require("cors");
 
-// // // const connectDB = require("./config/db");
-
-// // // const authRoutes = require("./routes/authRoutes");
-// // // const flightRoutes = require("./routes/flightRoutes");
-// // // const userRoutes = require("./routes/userRoutes");
-// // // const bookingRoutes = require("./routes/bookingRoutes");
-
 // // // // ==========================================
-// // // // ENVIRONMENT
+// // // // LOAD ENV FIRST
 // // // // ==========================================
 
 // // // dotenv.config();
@@ -999,10 +1190,25 @@
 // // // // DATABASE
 // // // // ==========================================
 
+// // // const connectDB = require("./config/db");
+
+// // // // ==========================================
+// // // // ROUTES
+// // // // ==========================================
+
+// // // const authRoutes = require("./routes/authRoutes");
+// // // const flightRoutes = require("./routes/flightRoutes");
+// // // const userRoutes = require("./routes/userRoutes");
+// // // const bookingRoutes = require("./routes/bookingRoutes");
+
+// // // // ==========================================
+// // // // DATABASE CONNECT
+// // // // ==========================================
+
 // // // connectDB();
 
 // // // // ==========================================
-// // // // EXPRESS APP
+// // // // EXPRESS
 // // // // ==========================================
 
 // // // const app = express();
@@ -1011,32 +1217,13 @@
 // // // // CORS
 // // // // ==========================================
 
-// // // const allowedOrigins = [
-// // //   "http://localhost:5173",
-// // //   "http://localhost:5174",
-// // //   "http://localhost:5175",
-// // //   "http://localhost:5176",
-// // //   "http://localhost:5177",
-// // //   "http://localhost:5178",
-// // //   "http://localhost:5179",
-// // //   "http://localhost:3000",
-// // // ];
-
 // // // app.use(
 // // //   cors({
 // // //     origin: function (origin, callback) {
-// // //       // Allow requests without origin
-// // //       // e.g. Postman
 // // //       if (!origin) {
 // // //         return callback(null, true);
 // // //       }
 
-// // //       // Allow listed frontend origins
-// // //       if (allowedOrigins.includes(origin)) {
-// // //         return callback(null, true);
-// // //       }
-
-// // //       // Allow localhost development ports
 // // //       if (
 // // //         origin.startsWith("http://localhost:")
 // // //       ) {
@@ -1127,36 +1314,46 @@
 // // // );
 
 // // // // ==========================================
+// // // // 404 API
+// // // // ==========================================
+
+// // // app.use((req, res) => {
+// // //   res.status(404).json({
+// // //     success: false,
+// // //     message:
+// // //       `Route not found: ${req.method} ${req.originalUrl}`,
+// // //   });
+// // // });
+
+// // // // ==========================================
 // // // // ERROR HANDLER
 // // // // ==========================================
 
-// // // app.use(
-// // //   (err, req, res, next) => {
-// // //     console.error(
-// // //       "Server Error:",
-// // //       err
-// // //     );
+// // // app.use((err, req, res, next) => {
+// // //   console.error(
+// // //     "SERVER ERROR:",
+// // //     err.message
+// // //   );
 
-// // //     if (
-// // //       err.message &&
-// // //       err.message.startsWith(
-// // //         "CORS blocked"
-// // //       )
-// // //     ) {
-// // //       return res.status(403).json({
-// // //         success: false,
-// // //         message: err.message,
-// // //       });
-// // //     }
-
-// // //     return res.status(500).json({
+// // //   if (
+// // //     err.message &&
+// // //     err.message.startsWith(
+// // //       "CORS blocked"
+// // //     )
+// // //   ) {
+// // //     return res.status(403).json({
 // // //       success: false,
-// // //       message:
-// // //         err.message ||
-// // //         "Internal server error.",
+// // //       message: err.message,
 // // //     });
 // // //   }
-// // // );
+
+// // //   return res.status(500).json({
+// // //     success: false,
+// // //     message:
+// // //       err.message ||
+// // //       "Internal server error.",
+// // //   });
+// // // });
 
 // // // // ==========================================
 // // // // SERVER
@@ -1171,9 +1368,20 @@
 // // //   );
 
 // // //   console.log(
-// // //     "CORS: Localhost development origins allowed"
+// // //     "Email User:",
+// // //     process.env.EMAIL_USER
+// // //       ? process.env.EMAIL_USER
+// // //       : "NOT SET"
+// // //   );
+
+// // //   console.log(
+// // //     "Email Password:",
+// // //     process.env.EMAIL_PASS
+// // //       ? "SET"
+// // //       : "NOT SET"
 // // //   );
 // // // });
+
 
 
 // // const express = require("express");
@@ -1217,44 +1425,73 @@
 // // // CORS
 // // // ==========================================
 
+// // // app.use(
+// // //   cors({
+// // //     origin: function (origin, callback) {
+// // //       // Postman / Thunder Client / direct browser request
+// // //       if (!origin) {
+// // //         return callback(null, true);
+// // //       }
+
+// // //       // Allow all localhost frontend ports
+// // //       if (
+// // //         origin.startsWith("http://localhost:")
+// // //       ) {
+// // //         return callback(null, true);
+// // //       }
+
+// // //       // Allow 127.0.0.1 frontend
+// // //       if (
+// // //         origin.startsWith("http://127.0.0.1:")
+// // //       ) {
+// // //         return callback(null, true);
+// // //       }
+
+// // //       return callback(
+// // //         new Error(
+// // //           `CORS blocked for origin: ${origin}`
+// // //         )
+// // //       );
+// // //     },
+
+// // //     credentials: true,
+
+// // //     methods: [
+// // //       "GET",
+// // //       "POST",
+// // //       "PUT",
+// // //       "PATCH",
+// // //       "DELETE",
+// // //       "OPTIONS",
+// // //     ],
+
+// // //     allowedHeaders: [
+// // //       "Content-Type",
+// // //       "Authorization",
+// // //       "x-user-id",
+// // //     ],
+// // //   })
+// // // );
+// // // CORS
 // // app.use(
 // //   cors({
-// //     origin: function (origin, callback) {
-// //       if (!origin) {
-// //         return callback(null, true);
-// //       }
-
-// //       if (
-// //         origin.startsWith("http://localhost:")
-// //       ) {
-// //         return callback(null, true);
-// //       }
-
-// //       return callback(
-// //         new Error(
-// //           `CORS blocked for origin: ${origin}`
-// //         )
-// //       );
-// //     },
-
+// //     origin: "http://localhost:5173",
 // //     credentials: true,
-
 // //     methods: [
 // //       "GET",
 // //       "POST",
 // //       "PUT",
 // //       "PATCH",
 // //       "DELETE",
-// //       "OPTIONS",
+// //       "OPTIONS"
 // //     ],
-
 // //     allowedHeaders: [
 // //       "Content-Type",
 // //       "Authorization",
-// //     ],
+// //       "x-user-id"
+// //     ]
 // //   })
 // // );
-
 // // // ==========================================
 // // // BODY PARSER
 // // // ==========================================
@@ -1368,6 +1605,11 @@
 // //   );
 
 // //   console.log(
+// //     "Booking API:",
+// //     `http://localhost:${PORT}/api/bookings`
+// //   );
+
+// //   console.log(
 // //     "Email User:",
 // //     process.env.EMAIL_USER
 // //       ? process.env.EMAIL_USER
@@ -1381,7 +1623,6 @@
 // //       : "NOT SET"
 // //   );
 // // });
-
 
 
 // const express = require("express");
@@ -1408,6 +1649,7 @@
 // const flightRoutes = require("./routes/flightRoutes");
 // const userRoutes = require("./routes/userRoutes");
 // const bookingRoutes = require("./routes/bookingRoutes");
+// const paymentRequestRoutes = require("./routes/paymentRequestRoutes");
 
 // // ==========================================
 // // DATABASE CONNECT
@@ -1425,73 +1667,29 @@
 // // CORS
 // // ==========================================
 
-// // app.use(
-// //   cors({
-// //     origin: function (origin, callback) {
-// //       // Postman / Thunder Client / direct browser request
-// //       if (!origin) {
-// //         return callback(null, true);
-// //       }
-
-// //       // Allow all localhost frontend ports
-// //       if (
-// //         origin.startsWith("http://localhost:")
-// //       ) {
-// //         return callback(null, true);
-// //       }
-
-// //       // Allow 127.0.0.1 frontend
-// //       if (
-// //         origin.startsWith("http://127.0.0.1:")
-// //       ) {
-// //         return callback(null, true);
-// //       }
-
-// //       return callback(
-// //         new Error(
-// //           `CORS blocked for origin: ${origin}`
-// //         )
-// //       );
-// //     },
-
-// //     credentials: true,
-
-// //     methods: [
-// //       "GET",
-// //       "POST",
-// //       "PUT",
-// //       "PATCH",
-// //       "DELETE",
-// //       "OPTIONS",
-// //     ],
-
-// //     allowedHeaders: [
-// //       "Content-Type",
-// //       "Authorization",
-// //       "x-user-id",
-// //     ],
-// //   })
-// // );
-// // CORS
 // app.use(
 //   cors({
 //     origin: "http://localhost:5173",
+
 //     credentials: true,
+
 //     methods: [
 //       "GET",
 //       "POST",
 //       "PUT",
 //       "PATCH",
 //       "DELETE",
-//       "OPTIONS"
+//       "OPTIONS",
 //     ],
+
 //     allowedHeaders: [
 //       "Content-Type",
 //       "Authorization",
-//       "x-user-id"
-//     ]
+//       "x-user-id",
+//     ],
 //   })
 // );
+
 // // ==========================================
 // // BODY PARSER
 // // ==========================================
@@ -1502,6 +1700,16 @@
 //   express.urlencoded({
 //     extended: true,
 //   })
+// );
+
+// // ==========================================
+// // STATIC FILES
+// // Payment screenshots access
+// // ==========================================
+
+// app.use(
+//   "/uploads",
+//   express.static("uploads")
 // );
 
 // // ==========================================
@@ -1548,6 +1756,15 @@
 // app.use(
 //   "/api/bookings",
 //   bookingRoutes
+// );
+
+// // ==========================================
+// // PAYMENT REQUESTS
+// // ==========================================
+
+// app.use(
+//   "/api/payment-requests",
+//   paymentRequestRoutes
 // );
 
 // // ==========================================
@@ -1610,6 +1827,11 @@
 //   );
 
 //   console.log(
+//     "Payment Request API:",
+//     `http://localhost:${PORT}/api/payment-requests`
+//   );
+
+//   console.log(
 //     "Email User:",
 //     process.env.EMAIL_USER
 //       ? process.env.EMAIL_USER
@@ -1623,6 +1845,7 @@
 //       : "NOT SET"
 //   );
 // });
+
 
 
 const express = require("express");
@@ -1669,7 +1892,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://saiyed-travel.vercel.app",
+    ],
 
     credentials: true,
 
