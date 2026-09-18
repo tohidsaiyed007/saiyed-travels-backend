@@ -1,2502 +1,9 @@
-// // // // // const PaymentRequest = require("../models/PaymentRequest");
 
-// // // // // // ==========================================
-// // // // // // CUSTOMER — CREATE PAYMENT REQUEST
-// // // // // // ==========================================
-
-// // // // // const createPaymentRequest = async (req, res) => {
-// // // // //   try {
-// // // // //     const {
-// // // // //       bookingData,
-// // // // //       amount,
-// // // // //       bankName,
-// // // // //       paymentId,
-// // // // //       paymentDateTime,
-// // // // //       customerEmail,
-// // // // //     } = req.body;
-
-// // // // //     if (
-// // // // //       !bookingData ||
-// // // // //       !amount ||
-// // // // //       !bankName ||
-// // // // //       !paymentId ||
-// // // // //       !paymentDateTime ||
-// // // // //       !customerEmail
-// // // // //     ) {
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
-// // // // //         message: "All payment details are required.",
-// // // // //       });
-// // // // //     }
-
-// // // // //     if (
-// // // // //       !["ICICI Bank", "Bank of Baroda"].includes(bankName)
-// // // // //     ) {
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
-// // // // //         message: "Invalid bank selected.",
-// // // // //       });
-// // // // //     }
-
-// // // // //     if (!req.file) {
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
-// // // // //         message: "Payment screenshot is required.",
-// // // // //       });
-// // // // //     }
-
-// // // // //     const paymentRequest = await PaymentRequest.create({
-// // // // //       bookingData: JSON.parse(bookingData),
-
-// // // // //       amount: Number(amount),
-
-// // // // //       bankName,
-
-// // // // //       paymentId: paymentId.trim(),
-
-// // // // //       screenshot: `/uploads/payment-screenshots/${req.file.filename}`,
-
-// // // // //       paymentDateTime: new Date(paymentDateTime),
-
-// // // // //       customerEmail: customerEmail
-// // // // //         .trim()
-// // // // //         .toLowerCase(),
-
-// // // // //       status: "Pending",
-// // // // //     });
-
-// // // // //     return res.status(201).json({
-// // // // //       success: true,
-// // // // //       message: "Payment request submitted successfully.",
-// // // // //       paymentRequest,
-// // // // //     });
-// // // // //   } catch (error) {
-// // // // //     console.error(
-// // // // //       "CREATE PAYMENT REQUEST ERROR:",
-// // // // //       error
-// // // // //     );
-
-// // // // //     return res.status(500).json({
-// // // // //       success: false,
-// // // // //       message:
-// // // // //         error.message ||
-// // // // //         "Failed to create payment request.",
-// // // // //     });
-// // // // //   }
-// // // // // };
-
-// // // // // // ==========================================
-// // // // // // ADMIN — GET ALL PAYMENT REQUESTS
-// // // // // // ==========================================
-
-// // // // // const getAllPaymentRequests = async (req, res) => {
-// // // // //   try {
-// // // // //     const requests = await PaymentRequest.find()
-// // // // //       .populate("approvedBookingId")
-// // // // //       .sort({ createdAt: -1 });
-
-// // // // //     return res.status(200).json({
-// // // // //       success: true,
-// // // // //       count: requests.length,
-// // // // //       requests,
-// // // // //     });
-// // // // //   } catch (error) {
-// // // // //     console.error(
-// // // // //       "GET PAYMENT REQUESTS ERROR:",
-// // // // //       error
-// // // // //     );
-
-// // // // //     return res.status(500).json({
-// // // // //       success: false,
-// // // // //       message:
-// // // // //         error.message ||
-// // // // //         "Failed to get payment requests.",
-// // // // //     });
-// // // // //   }
-// // // // // };
-
-// // // // // // ==========================================
-// // // // // // ADMIN — GET SINGLE PAYMENT REQUEST
-// // // // // // ==========================================
-
-// // // // // const getPaymentRequestById = async (req, res) => {
-// // // // //   try {
-// // // // //     const request = await PaymentRequest.findById(
-// // // // //       req.params.id
-// // // // //     ).populate("approvedBookingId");
-
-// // // // //     if (!request) {
-// // // // //       return res.status(404).json({
-// // // // //         success: false,
-// // // // //         message: "Payment request not found.",
-// // // // //       });
-// // // // //     }
-
-// // // // //     return res.status(200).json({
-// // // // //       success: true,
-// // // // //       request,
-// // // // //     });
-// // // // //   } catch (error) {
-// // // // //     console.error(
-// // // // //       "GET PAYMENT REQUEST ERROR:",
-// // // // //       error
-// // // // //     );
-
-// // // // //     return res.status(500).json({
-// // // // //       success: false,
-// // // // //       message:
-// // // // //         error.message ||
-// // // // //         "Failed to get payment request.",
-// // // // //     });
-// // // // //   }
-// // // // // };
-
-// // // // // // ==========================================
-// // // // // // ADMIN — PENDING PAYMENT COUNT
-// // // // // // ==========================================
-
-// // // // // const getPendingPaymentCount = async (req, res) => {
-// // // // //   try {
-// // // // //     const count =
-// // // // //       await PaymentRequest.countDocuments({
-// // // // //         status: "Pending",
-// // // // //       });
-
-// // // // //     return res.status(200).json({
-// // // // //       success: true,
-// // // // //       count,
-// // // // //     });
-// // // // //   } catch (error) {
-// // // // //     console.error(
-// // // // //       "PENDING PAYMENT COUNT ERROR:",
-// // // // //       error
-// // // // //     );
-
-// // // // //     return res.status(500).json({
-// // // // //       success: false,
-// // // // //       message:
-// // // // //         error.message ||
-// // // // //         "Failed to get pending payment count.",
-// // // // //     });
-// // // // //   }
-// // // // // };
-
-// // // // // // ==========================================
-// // // // // // ADMIN — REJECT PAYMENT REQUEST
-// // // // // // ==========================================
-
-// // // // // const rejectPaymentRequest = async (req, res) => {
-// // // // //   try {
-// // // // //     const { adminNote } = req.body;
-
-// // // // //     const request = await PaymentRequest.findById(
-// // // // //       req.params.id
-// // // // //     );
-
-// // // // //     if (!request) {
-// // // // //       return res.status(404).json({
-// // // // //         success: false,
-// // // // //         message: "Payment request not found.",
-// // // // //       });
-// // // // //     }
-
-// // // // //     if (request.status !== "Pending") {
-// // // // //       return res.status(400).json({
-// // // // //         success: false,
-// // // // //         message:
-// // // // //           `Payment request is already ${request.status}.`,
-// // // // //       });
-// // // // //     }
-
-// // // // //     request.status = "Rejected";
-
-// // // // //     request.adminNote =
-// // // // //       adminNote ||
-// // // // //       "Payment rejected by admin.";
-
-// // // // //     request.processedAt = new Date();
-
-// // // // //     await request.save();
-
-// // // // //     return res.status(200).json({
-// // // // //       success: true,
-// // // // //       message:
-// // // // //         "Payment request rejected successfully.",
-// // // // //       request,
-// // // // //     });
-// // // // //   } catch (error) {
-// // // // //     console.error(
-// // // // //       "REJECT PAYMENT REQUEST ERROR:",
-// // // // //       error
-// // // // //     );
-
-// // // // //     return res.status(500).json({
-// // // // //       success: false,
-// // // // //       message:
-// // // // //         error.message ||
-// // // // //         "Failed to reject payment request.",
-// // // // //     });
-// // // // //   }
-// // // // // };
-
-// // // // // // ==========================================
-// // // // // // EXPORTS
-// // // // // // ==========================================
-
-// // // // // module.exports = {
-// // // // //   createPaymentRequest,
-// // // // //   getAllPaymentRequests,
-// // // // //   getPaymentRequestById,
-// // // // //   getPendingPaymentCount,
-// // // // //   rejectPaymentRequest,
-// // // // // };
-
-
-// // // // const PaymentRequest = require("../models/PaymentRequest");
-// // // // const bookingController = require("./bookingController");
-
-// // // // // =====================================================
-// // // // // CREATE PAYMENT REQUEST
-// // // // // POST /api/payment-requests
-// // // // // =====================================================
-
-// // // // const createPaymentRequest = async (req, res) => {
-// // // //   try {
-// // // //     const {
-// // // //       bookingData,
-// // // //       amount,
-// // // //       bankName,
-// // // //       paymentId,
-// // // //       paymentDateTime,
-// // // //       customerEmail,
-// // // //     } = req.body;
-
-// // // //     // -----------------------------------------
-// // // //     // REQUIRED FIELDS
-// // // //     // -----------------------------------------
-
-// // // //     if (
-// // // //       !bookingData ||
-// // // //       amount === undefined ||
-// // // //       amount === null ||
-// // // //       !bankName ||
-// // // //       !paymentId ||
-// // // //       !paymentDateTime ||
-// // // //       !customerEmail
-// // // //     ) {
-// // // //       return res.status(400).json({
-// // // //         success: false,
-// // // //         message: "All payment details are required.",
-// // // //       });
-// // // //     }
-
-// // // //     // -----------------------------------------
-// // // //     // BANK VALIDATION
-// // // //     // -----------------------------------------
-
-// // // //     if (
-// // // //       !["ICICI Bank", "Bank of Baroda"].includes(
-// // // //         bankName
-// // // //       )
-// // // //     ) {
-// // // //       return res.status(400).json({
-// // // //         success: false,
-// // // //         message: "Invalid bank selected.",
-// // // //       });
-// // // //     }
-
-// // // //     // -----------------------------------------
-// // // //     // SCREENSHOT VALIDATION
-// // // //     // -----------------------------------------
-
-// // // //     if (!req.file) {
-// // // //       return res.status(400).json({
-// // // //         success: false,
-// // // //         message: "Payment screenshot is required.",
-// // // //       });
-// // // //     }
-
-// // // //     // -----------------------------------------
-// // // //     // PARSE BOOKING DATA
-// // // //     // -----------------------------------------
-
-// // // //     let parsedBookingData;
-
-// // // //     try {
-// // // //       parsedBookingData =
-// // // //         typeof bookingData === "string"
-// // // //           ? JSON.parse(bookingData)
-// // // //           : bookingData;
-// // // //     } catch (error) {
-// // // //       return res.status(400).json({
-// // // //         success: false,
-// // // //         message: "Invalid booking data.",
-// // // //       });
-// // // //     }
-
-// // // //     // -----------------------------------------
-// // // //     // PAYMENT DATE VALIDATION
-// // // //     // -----------------------------------------
-
-// // // //     const paymentDate = new Date(
-// // // //       paymentDateTime
-// // // //     );
-
-// // // //     if (Number.isNaN(paymentDate.getTime())) {
-// // // //       return res.status(400).json({
-// // // //         success: false,
-// // // //         message: "Invalid payment date/time.",
-// // // //       });
-// // // //     }
-
-// // // //     // -----------------------------------------
-// // // //     // CREATE REQUEST
-// // // //     // -----------------------------------------
-
-// // // //     const paymentRequest =
-// // // //       await PaymentRequest.create({
-// // // //         bookingData: parsedBookingData,
-
-// // // //         amount: Number(amount),
-
-// // // //         bankName,
-
-// // // //         paymentId:
-// // // //           String(paymentId).trim(),
-
-// // // //         screenshot:
-// // // //           `/uploads/payment-screenshots/${req.file.filename}`,
-
-// // // //         paymentDateTime: paymentDate,
-
-// // // //         customerEmail:
-// // // //           String(customerEmail)
-// // // //             .trim()
-// // // //             .toLowerCase(),
-
-// // // //         status: "Pending",
-
-// // // //         adminNote: "",
-
-// // // //         approvedBookingId: null,
-
-// // // //         processedAt: null,
-// // // //       });
-
-// // // //     // -----------------------------------------
-// // // //     // RESPONSE
-// // // //     // -----------------------------------------
-
-// // // //     return res.status(201).json({
-// // // //       success: true,
-
-// // // //       message:
-// // // //         "Payment request submitted successfully. Waiting for admin verification.",
-
-// // // //       paymentRequest,
-// // // //     });
-// // // //   } catch (error) {
-// // // //     console.error(
-// // // //       "CREATE PAYMENT REQUEST ERROR:",
-// // // //       error
-// // // //     );
-
-// // // //     return res.status(500).json({
-// // // //       success: false,
-
-// // // //       message:
-// // // //         error.message ||
-// // // //         "Failed to create payment request.",
-// // // //     });
-// // // //   }
-// // // // };
-
-
-// // // // // =====================================================
-// // // // // GET ALL PAYMENT REQUESTS
-// // // // // GET /api/payment-requests
-// // // // // =====================================================
-
-// // // // const getAllPaymentRequests = async (
-// // // //   req,
-// // // //   res
-// // // // ) => {
-// // // //   try {
-// // // //     const requests =
-// // // //       await PaymentRequest.find()
-// // // //         .populate("approvedBookingId")
-// // // //         .sort({
-// // // //           createdAt: -1,
-// // // //         });
-
-// // // //     return res.status(200).json({
-// // // //       success: true,
-
-// // // //       count:
-// // // //         requests.length,
-
-// // // //       requests,
-// // // //     });
-// // // //   } catch (error) {
-// // // //     console.error(
-// // // //       "GET PAYMENT REQUESTS ERROR:",
-// // // //       error
-// // // //     );
-
-// // // //     return res.status(500).json({
-// // // //       success: false,
-
-// // // //       message:
-// // // //         error.message ||
-// // // //         "Failed to get payment requests.",
-// // // //     });
-// // // //   }
-// // // // };
-
-
-// // // // // =====================================================
-// // // // // GET SINGLE PAYMENT REQUEST
-// // // // // GET /api/payment-requests/:id
-// // // // // =====================================================
-
-// // // // const getPaymentRequestById =
-// // // //   async (req, res) => {
-// // // //     try {
-// // // //       const request =
-// // // //         await PaymentRequest.findById(
-// // // //           req.params.id
-// // // //         ).populate(
-// // // //           "approvedBookingId"
-// // // //         );
-
-// // // //       if (!request) {
-// // // //         return res.status(404).json({
-// // // //           success: false,
-// // // //           message:
-// // // //             "Payment request not found.",
-// // // //         });
-// // // //       }
-
-// // // //       return res.status(200).json({
-// // // //         success: true,
-// // // //         request,
-// // // //       });
-// // // //     } catch (error) {
-// // // //       console.error(
-// // // //         "GET PAYMENT REQUEST ERROR:",
-// // // //         error
-// // // //       );
-
-// // // //       return res.status(500).json({
-// // // //         success: false,
-
-// // // //         message:
-// // // //           error.message ||
-// // // //           "Failed to get payment request.",
-// // // //       });
-// // // //     }
-// // // //   };
-
-
-// // // // // =====================================================
-// // // // // GET PENDING PAYMENT COUNT
-// // // // // GET /api/payment-requests/pending-count
-// // // // // =====================================================
-
-// // // // const getPendingPaymentCount =
-// // // //   async (req, res) => {
-// // // //     try {
-// // // //       const count =
-// // // //         await PaymentRequest.countDocuments({
-// // // //           status: "Pending",
-// // // //         });
-
-// // // //       return res.status(200).json({
-// // // //         success: true,
-// // // //         count,
-// // // //       });
-// // // //     } catch (error) {
-// // // //       console.error(
-// // // //         "PENDING PAYMENT COUNT ERROR:",
-// // // //         error
-// // // //       );
-
-// // // //       return res.status(500).json({
-// // // //         success: false,
-
-// // // //         message:
-// // // //           error.message ||
-// // // //           "Failed to get pending payment count.",
-// // // //       });
-// // // //     }
-// // // //   };
-
-
-// // // // // =====================================================
-// // // // // ACCEPT PAYMENT REQUEST
-// // // // // PUT /api/payment-requests/:id/accept
-// // // // // =====================================================
-
-// // // // const acceptPaymentRequest =
-// // // //   async (req, res) => {
-// // // //     try {
-// // // //       const {
-// // // //         adminNote,
-// // // //       } = req.body || {};
-
-// // // //       // -----------------------------------------
-// // // //       // FIND REQUEST
-// // // //       // -----------------------------------------
-
-// // // //       const request =
-// // // //         await PaymentRequest.findById(
-// // // //           req.params.id
-// // // //         );
-
-// // // //       if (!request) {
-// // // //         return res.status(404).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             "Payment request not found.",
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // ONLY PENDING CAN BE ACCEPTED
-// // // //       // -----------------------------------------
-
-// // // //       if (
-// // // //         request.status !==
-// // // //         "Pending"
-// // // //       ) {
-// // // //         return res.status(400).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             `Payment request is already ${request.status}.`,
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // BOOKING DATA
-// // // //       // -----------------------------------------
-
-// // // //       if (
-// // // //         !request.bookingData
-// // // //       ) {
-// // // //         return res.status(400).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             "Booking data is missing from payment request.",
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // COPY BOOKING DATA
-// // // //       // -----------------------------------------
-
-// // // //       const bookingData =
-// // // //         JSON.parse(
-// // // //           JSON.stringify(
-// // // //             request.bookingData
-// // // //           )
-// // // //         );
-
-// // // //       // -----------------------------------------
-// // // //       // FORCE VERIFIED PAYMENT
-// // // //       // -----------------------------------------
-
-// // // //       bookingData.paymentVerified =
-// // // //         true;
-
-// // // //       bookingData.paymentStatus =
-// // // //         "Paid";
-
-// // // //       bookingData.bookingStatus =
-// // // //         "Confirmed";
-
-// // // //       bookingData.paymentMethod =
-// // // //         request.bankName;
-
-// // // //       bookingData.paymentId =
-// // // //         request.paymentId;
-
-// // // //       // -----------------------------------------
-// // // //       // IMPORTANT
-// // // //       // ADMIN ACCEPTED PAYMENT
-// // // //       // -----------------------------------------
-
-// // // //       bookingData.role =
-// // // //         "admin";
-
-// // // //       bookingData.userRole =
-// // // //         "admin";
-
-// // // //       bookingData.accountType =
-// // // //         "admin";
-
-// // // //       // -----------------------------------------
-// // // //       // FAKE RESPONSE OBJECT
-// // // //       //
-// // // //       // Existing createBooking controller
-// // // //       // will create the actual booking,
-// // // //       // assign Booking ID and PNR,
-// // // //       // and mark the flight ticket Booked.
-// // // //       // -----------------------------------------
-
-// // // //       let bookingResult = null;
-
-// // // //       const fakeResponse = {
-// // // //         statusCode: 200,
-
-// // // //         status(code) {
-// // // //           this.statusCode =
-// // // //             code;
-
-// // // //           return this;
-// // // //         },
-
-// // // //         json(data) {
-// // // //           bookingResult =
-// // // //             data;
-
-// // // //           return this;
-// // // //         },
-
-// // // //         send(data) {
-// // // //           bookingResult =
-// // // //             data;
-
-// // // //           return this;
-// // // //         },
-// // // //       };
-
-// // // //       // -----------------------------------------
-// // // //       // CALL EXISTING BOOKING CONTROLLER
-// // // //       // -----------------------------------------
-
-// // // //       await bookingController.createBooking(
-// // // //         {
-// // // //           body: bookingData,
-
-// // // //           user: {
-// // // //             role: "admin",
-// // // //           },
-
-// // // //           headers:
-// // // //             req.headers || {},
-// // // //         },
-// // // //         fakeResponse
-// // // //       );
-
-// // // //       // -----------------------------------------
-// // // //       // CHECK BOOKING RESULT
-// // // //       // -----------------------------------------
-
-// // // //       if (
-// // // //         !bookingResult ||
-// // // //         !bookingResult.success
-// // // //       ) {
-// // // //         console.error(
-// // // //           "ACCEPT PAYMENT BOOKING ERROR:",
-// // // //           bookingResult
-// // // //         );
-
-// // // //         return res.status(
-// // // //           bookingResult?.statusCode ||
-// // // //             400
-// // // //         ).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             bookingResult?.message ||
-// // // //             "Unable to create confirmed booking.",
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // GET CREATED BOOKING
-// // // //       // -----------------------------------------
-
-// // // //       const createdBooking =
-// // // //         bookingResult.booking;
-
-// // // //       if (
-// // // //         !createdBooking ||
-// // // //         !createdBooking._id
-// // // //       ) {
-// // // //         return res.status(500).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             "Booking was created but booking details were not returned.",
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // UPDATE PAYMENT REQUEST
-// // // //       // -----------------------------------------
-
-// // // //       request.status =
-// // // //         "Accepted";
-
-// // // //       request.approvedBookingId =
-// // // //         createdBooking._id;
-
-// // // //       request.adminNote =
-// // // //         adminNote ||
-// // // //         "Payment verified and booking confirmed by admin.";
-
-// // // //       request.processedAt =
-// // // //         new Date();
-
-// // // //       await request.save();
-
-// // // //       // -----------------------------------------
-// // // //       // SUCCESS
-// // // //       // -----------------------------------------
-
-// // // //       return res.status(200).json({
-// // // //         success: true,
-
-// // // //         message:
-// // // //           "Payment accepted and booking confirmed successfully.",
-
-// // // //         paymentRequest:
-// // // //           request,
-
-// // // //         booking:
-// // // //           createdBooking,
-// // // //       });
-// // // //     } catch (error) {
-// // // //       console.error(
-// // // //         "ACCEPT PAYMENT REQUEST ERROR:",
-// // // //         error
-// // // //       );
-
-// // // //       return res.status(500).json({
-// // // //         success: false,
-
-// // // //         message:
-// // // //           error.message ||
-// // // //           "Failed to accept payment request.",
-// // // //       });
-// // // //     }
-// // // //   };
-
-
-// // // // // =====================================================
-// // // // // REJECT PAYMENT REQUEST
-// // // // // PUT /api/payment-requests/:id/reject
-// // // // // =====================================================
-
-// // // // const rejectPaymentRequest =
-// // // //   async (req, res) => {
-// // // //     try {
-// // // //       const {
-// // // //         adminNote,
-// // // //       } = req.body || {};
-
-// // // //       // -----------------------------------------
-// // // //       // FIND REQUEST
-// // // //       // -----------------------------------------
-
-// // // //       const request =
-// // // //         await PaymentRequest.findById(
-// // // //           req.params.id
-// // // //         );
-
-// // // //       if (!request) {
-// // // //         return res.status(404).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             "Payment request not found.",
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // ONLY PENDING CAN BE REJECTED
-// // // //       // -----------------------------------------
-
-// // // //       if (
-// // // //         request.status !==
-// // // //         "Pending"
-// // // //       ) {
-// // // //         return res.status(400).json({
-// // // //           success: false,
-
-// // // //           message:
-// // // //             `Payment request is already ${request.status}.`,
-// // // //         });
-// // // //       }
-
-// // // //       // -----------------------------------------
-// // // //       // REJECT
-// // // //       // -----------------------------------------
-
-// // // //       request.status =
-// // // //         "Rejected";
-
-// // // //       request.adminNote =
-// // // //         adminNote ||
-// // // //         "Payment rejected by admin.";
-
-// // // //       request.processedAt =
-// // // //         new Date();
-
-// // // //       request.approvedBookingId =
-// // // //         null;
-
-// // // //       await request.save();
-
-// // // //       // -----------------------------------------
-// // // //       // RESPONSE
-// // // //       // -----------------------------------------
-
-// // // //       return res.status(200).json({
-// // // //         success: true,
-
-// // // //         message:
-// // // //           "Payment request rejected successfully.",
-
-// // // //         request,
-// // // //       });
-// // // //     } catch (error) {
-// // // //       console.error(
-// // // //         "REJECT PAYMENT REQUEST ERROR:",
-// // // //         error
-// // // //       );
-
-// // // //       return res.status(500).json({
-// // // //         success: false,
-
-// // // //         message:
-// // // //           error.message ||
-// // // //           "Failed to reject payment request.",
-// // // //       });
-// // // //     }
-// // // //   };
-
-
-// // // // // =====================================================
-// // // // // EXPORT
-// // // // // =====================================================
-
-// // // // module.exports = {
-// // // //   createPaymentRequest,
-
-// // // //   getAllPaymentRequests,
-
-// // // //   getPaymentRequestById,
-
-// // // //   getPendingPaymentCount,
-
-// // // //   acceptPaymentRequest,
-
-// // // //   rejectPaymentRequest,
-// // // // };
-
-
-// // // const PaymentRequest = require("../models/PaymentRequest");
-// // // const bookingController = require("./bookingController");
-
-// // // // =====================================================
-// // // // EMAIL SERVICE
-// // // // =====================================================
-
-// // // const {
-// // //   sendAdminPaymentNotification,
-// // // } = require("../services/emailService");
-
-
-// // // // =====================================================
-// // // // CREATE PAYMENT REQUEST
-// // // // POST /api/payment-requests
-// // // // =====================================================
-
-// // // const createPaymentRequest = async (req, res) => {
-// // //   try {
-
-// // //     const {
-// // //       bookingData,
-// // //       amount,
-// // //       bankName,
-// // //       paymentId,
-// // //       paymentDateTime,
-// // //       customerEmail,
-// // //     } = req.body;
-
-
-// // //     // -----------------------------------------
-// // //     // REQUIRED FIELDS
-// // //     // -----------------------------------------
-
-// // //     if (
-// // //       !bookingData ||
-// // //       amount === undefined ||
-// // //       amount === null ||
-// // //       !bankName ||
-// // //       !paymentId ||
-// // //       !paymentDateTime ||
-// // //       !customerEmail
-// // //     ) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: "All payment details are required.",
-// // //       });
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // BANK VALIDATION
-// // //     // -----------------------------------------
-
-// // //     if (
-// // //       !["ICICI Bank", "Bank of Baroda"].includes(
-// // //         bankName
-// // //       )
-// // //     ) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: "Invalid bank selected.",
-// // //       });
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // SCREENSHOT VALIDATION
-// // //     // -----------------------------------------
-
-// // //     if (!req.file) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: "Payment screenshot is required.",
-// // //       });
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // PARSE BOOKING DATA
-// // //     // -----------------------------------------
-
-// // //     let parsedBookingData;
-
-// // //     try {
-
-// // //       parsedBookingData =
-// // //         typeof bookingData === "string"
-// // //           ? JSON.parse(bookingData)
-// // //           : bookingData;
-
-// // //     } catch (error) {
-
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: "Invalid booking data.",
-// // //       });
-
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // PAYMENT DATE VALIDATION
-// // //     // -----------------------------------------
-
-// // //     const paymentDate =
-// // //       new Date(paymentDateTime);
-
-
-// // //     if (Number.isNaN(paymentDate.getTime())) {
-
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: "Invalid payment date/time.",
-// // //       });
-
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // CREATE PAYMENT REQUEST
-// // //     // -----------------------------------------
-
-// // //     const paymentRequest =
-// // //       await PaymentRequest.create({
-
-// // //         bookingData:
-// // //           parsedBookingData,
-
-// // //         amount:
-// // //           Number(amount),
-
-// // //         bankName,
-
-// // //         paymentId:
-// // //           String(paymentId).trim(),
-
-// // //         screenshot:
-// // //           `/uploads/payment-screenshots/${req.file.filename}`,
-
-// // //         paymentDateTime:
-// // //           paymentDate,
-
-// // //         customerEmail:
-// // //           String(customerEmail)
-// // //             .trim()
-// // //             .toLowerCase(),
-
-// // //         status:
-// // //           "Pending",
-
-// // //         adminNote:
-// // //           "",
-
-// // //         approvedBookingId:
-// // //           null,
-
-// // //         processedAt:
-// // //           null,
-
-// // //       });
-
-
-// // //     // =================================================
-// // //     // SEND EMAIL TO ADMIN
-// // //     // =================================================
-
-// // //     try {
-
-// // //       await sendAdminPaymentNotification({
-// // //         paymentRequest,
-// // //       });
-
-// // //       console.log(
-// // //         "ADMIN PAYMENT EMAIL: SENT"
-// // //       );
-
-// // //     } catch (emailError) {
-
-// // //       // Email fail hone par payment request
-// // //       // fail nahi hogi.
-
-// // //       console.error(
-// // //         "ADMIN PAYMENT EMAIL FAILED:",
-// // //         emailError.message
-// // //       );
-
-// // //     }
-
-
-// // //     // -----------------------------------------
-// // //     // RESPONSE
-// // //     // -----------------------------------------
-
-// // //     return res.status(201).json({
-
-// // //       success: true,
-
-// // //       message:
-// // //         "Payment request submitted successfully. Waiting for admin verification.",
-
-// // //       paymentRequest,
-
-// // //     });
-
-
-// // //   } catch (error) {
-
-// // //     console.error(
-// // //       "CREATE PAYMENT REQUEST ERROR:",
-// // //       error
-// // //     );
-
-
-// // //     return res.status(500).json({
-
-// // //       success: false,
-
-// // //       message:
-// // //         error.message ||
-// // //         "Failed to create payment request.",
-
-// // //     });
-
-// // //   }
-// // // };
-
-
-// // // // =====================================================
-// // // // GET ALL PAYMENT REQUESTS
-// // // // GET /api/payment-requests
-// // // // =====================================================
-
-// // // const getAllPaymentRequests = async (
-// // //   req,
-// // //   res
-// // // ) => {
-
-// // //   try {
-
-// // //     const requests =
-// // //       await PaymentRequest.find()
-// // //         .populate("approvedBookingId")
-// // //         .sort({
-// // //           createdAt: -1,
-// // //         });
-
-
-// // //     return res.status(200).json({
-
-// // //       success: true,
-
-// // //       count:
-// // //         requests.length,
-
-// // //       requests,
-
-// // //     });
-
-// // //   } catch (error) {
-
-// // //     console.error(
-// // //       "GET PAYMENT REQUESTS ERROR:",
-// // //       error
-// // //     );
-
-
-// // //     return res.status(500).json({
-
-// // //       success: false,
-
-// // //       message:
-// // //         error.message ||
-// // //         "Failed to get payment requests.",
-
-// // //     });
-
-// // //   }
-// // // };
-
-
-// // // // =====================================================
-// // // // GET SINGLE PAYMENT REQUEST
-// // // // GET /api/payment-requests/:id
-// // // // =====================================================
-
-// // // const getPaymentRequestById =
-// // //   async (req, res) => {
-
-// // //     try {
-
-// // //       const request =
-// // //         await PaymentRequest.findById(
-// // //           req.params.id
-// // //         ).populate(
-// // //           "approvedBookingId"
-// // //         );
-
-
-// // //       if (!request) {
-
-// // //         return res.status(404).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             "Payment request not found.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       return res.status(200).json({
-
-// // //         success: true,
-
-// // //         request,
-
-// // //       });
-
-// // //     } catch (error) {
-
-// // //       console.error(
-// // //         "GET PAYMENT REQUEST ERROR:",
-// // //         error
-// // //       );
-
-
-// // //       return res.status(500).json({
-
-// // //         success: false,
-
-// // //         message:
-// // //           error.message ||
-// // //           "Failed to get payment request.",
-
-// // //       });
-
-// // //     }
-
-// // //   };
-
-
-// // // // =====================================================
-// // // // GET PENDING PAYMENT COUNT
-// // // // GET /api/payment-requests/pending-count
-// // // // =====================================================
-
-// // // const getPendingPaymentCount =
-// // //   async (req, res) => {
-
-// // //     try {
-
-// // //       const count =
-// // //         await PaymentRequest.countDocuments({
-// // //           status: "Pending",
-// // //         });
-
-
-// // //       return res.status(200).json({
-
-// // //         success: true,
-
-// // //         count,
-
-// // //       });
-
-// // //     } catch (error) {
-
-// // //       console.error(
-// // //         "PENDING PAYMENT COUNT ERROR:",
-// // //         error
-// // //       );
-
-
-// // //       return res.status(500).json({
-
-// // //         success: false,
-
-// // //         message:
-// // //           error.message ||
-// // //           "Failed to get pending payment count.",
-
-// // //       });
-
-// // //     }
-
-// // //   };
-
-
-// // // // =====================================================
-// // // // ACCEPT PAYMENT REQUEST
-// // // // PUT /api/payment-requests/:id/accept
-// // // // =====================================================
-
-// // // const acceptPaymentRequest =
-// // //   async (req, res) => {
-
-// // //     try {
-
-// // //       const {
-// // //         adminNote,
-// // //       } = req.body || {};
-
-
-// // //       // -----------------------------------------
-// // //       // FIND REQUEST
-// // //       // -----------------------------------------
-
-// // //       const request =
-// // //         await PaymentRequest.findById(
-// // //           req.params.id
-// // //         );
-
-
-// // //       if (!request) {
-
-// // //         return res.status(404).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             "Payment request not found.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // ONLY PENDING CAN BE ACCEPTED
-// // //       // -----------------------------------------
-
-// // //       if (
-// // //         request.status !==
-// // //         "Pending"
-// // //       ) {
-
-// // //         return res.status(400).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             `Payment request is already ${request.status}.`,
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // BOOKING DATA
-// // //       // -----------------------------------------
-
-// // //       if (
-// // //         !request.bookingData
-// // //       ) {
-
-// // //         return res.status(400).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             "Booking data is missing from payment request.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // COPY BOOKING DATA
-// // //       // -----------------------------------------
-
-// // //       const bookingData =
-// // //         JSON.parse(
-// // //           JSON.stringify(
-// // //             request.bookingData
-// // //           )
-// // //         );
-
-
-// // //       // -----------------------------------------
-// // //       // FORCE VERIFIED PAYMENT
-// // //       // -----------------------------------------
-
-// // //       bookingData.paymentVerified =
-// // //         true;
-
-// // //       bookingData.paymentStatus =
-// // //         "Paid";
-
-// // //       bookingData.bookingStatus =
-// // //         "Confirmed";
-
-// // //       bookingData.paymentMethod =
-// // //         request.bankName;
-
-// // //       bookingData.paymentId =
-// // //         request.paymentId;
-
-
-// // //       // -----------------------------------------
-// // //       // ADMIN ACCEPTED PAYMENT
-// // //       // -----------------------------------------
-
-// // //       bookingData.role =
-// // //         "admin";
-
-// // //       bookingData.userRole =
-// // //         "admin";
-
-// // //       bookingData.accountType =
-// // //         "admin";
-
-
-// // //       // -----------------------------------------
-// // //       // FAKE RESPONSE OBJECT
-// // //       // -----------------------------------------
-
-// // //       let bookingResult = null;
-
-
-// // //       const fakeResponse = {
-
-// // //         statusCode: 200,
-
-
-// // //         status(code) {
-
-// // //           this.statusCode =
-// // //             code;
-
-// // //           return this;
-
-// // //         },
-
-
-// // //         json(data) {
-
-// // //           bookingResult =
-// // //             data;
-
-// // //           return this;
-
-// // //         },
-
-
-// // //         send(data) {
-
-// // //           bookingResult =
-// // //             data;
-
-// // //           return this;
-
-// // //         },
-
-// // //       };
-
-
-// // //       // -----------------------------------------
-// // //       // CREATE ACTUAL BOOKING
-// // //       // -----------------------------------------
-
-// // //       await bookingController.createBooking(
-// // //         {
-
-// // //           body:
-// // //             bookingData,
-
-// // //           user: {
-// // //             role: "admin",
-// // //           },
-
-// // //           headers:
-// // //             req.headers || {},
-
-// // //         },
-
-// // //         fakeResponse
-
-// // //       );
-
-
-// // //       // -----------------------------------------
-// // //       // CHECK BOOKING RESULT
-// // //       // -----------------------------------------
-
-// // //       if (
-// // //         !bookingResult ||
-// // //         !bookingResult.success
-// // //       ) {
-
-// // //         console.error(
-// // //           "ACCEPT PAYMENT BOOKING ERROR:",
-// // //           bookingResult
-// // //         );
-
-
-// // //         return res.status(
-// // //           bookingResult?.statusCode ||
-// // //           400
-// // //         ).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             bookingResult?.message ||
-// // //             "Unable to create confirmed booking.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // GET CREATED BOOKING
-// // //       // -----------------------------------------
-
-// // //       const createdBooking =
-// // //         bookingResult.booking;
-
-
-// // //       if (
-// // //         !createdBooking ||
-// // //         !createdBooking._id
-// // //       ) {
-
-// // //         return res.status(500).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             "Booking was created but booking details were not returned.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // UPDATE PAYMENT REQUEST
-// // //       // -----------------------------------------
-
-// // //       request.status =
-// // //         "Accepted";
-
-// // //       request.approvedBookingId =
-// // //         createdBooking._id;
-
-// // //       request.adminNote =
-// // //         adminNote ||
-// // //         "Payment verified and booking confirmed by admin.";
-
-// // //       request.processedAt =
-// // //         new Date();
-
-
-// // //       await request.save();
-
-
-// // //       // -----------------------------------------
-// // //       // SUCCESS
-// // //       // -----------------------------------------
-
-// // //       return res.status(200).json({
-
-// // //         success: true,
-
-// // //         message:
-// // //           "Payment accepted and booking confirmed successfully.",
-
-// // //         paymentRequest:
-// // //           request,
-
-// // //         booking:
-// // //           createdBooking,
-
-// // //       });
-
-// // //     } catch (error) {
-
-// // //       console.error(
-// // //         "ACCEPT PAYMENT REQUEST ERROR:",
-// // //         error
-// // //       );
-
-
-// // //       return res.status(500).json({
-
-// // //         success: false,
-
-// // //         message:
-// // //           error.message ||
-// // //           "Failed to accept payment request.",
-
-// // //       });
-
-// // //     }
-
-// // //   };
-
-
-// // // // =====================================================
-// // // // REJECT PAYMENT REQUEST
-// // // // PUT /api/payment-requests/:id/reject
-// // // // =====================================================
-
-// // // const rejectPaymentRequest =
-// // //   async (req, res) => {
-
-// // //     try {
-
-// // //       const {
-// // //         adminNote,
-// // //       } = req.body || {};
-
-
-// // //       // -----------------------------------------
-// // //       // FIND REQUEST
-// // //       // -----------------------------------------
-
-// // //       const request =
-// // //         await PaymentRequest.findById(
-// // //           req.params.id
-// // //         );
-
-
-// // //       if (!request) {
-
-// // //         return res.status(404).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             "Payment request not found.",
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // ONLY PENDING CAN BE REJECTED
-// // //       // -----------------------------------------
-
-// // //       if (
-// // //         request.status !==
-// // //         "Pending"
-// // //       ) {
-
-// // //         return res.status(400).json({
-
-// // //           success: false,
-
-// // //           message:
-// // //             `Payment request is already ${request.status}.`,
-
-// // //         });
-
-// // //       }
-
-
-// // //       // -----------------------------------------
-// // //       // REJECT
-// // //       // -----------------------------------------
-
-// // //       request.status =
-// // //         "Rejected";
-
-// // //       request.adminNote =
-// // //         adminNote ||
-// // //         "Payment rejected by admin.";
-
-// // //       request.processedAt =
-// // //         new Date();
-
-// // //       request.approvedBookingId =
-// // //         null;
-
-
-// // //       await request.save();
-
-
-// // //       // -----------------------------------------
-// // //       // RESPONSE
-// // //       // -----------------------------------------
-
-// // //       return res.status(200).json({
-
-// // //         success: true,
-
-// // //         message:
-// // //           "Payment request rejected successfully.",
-
-// // //         request,
-
-// // //       });
-
-// // //     } catch (error) {
-
-// // //       console.error(
-// // //         "REJECT PAYMENT REQUEST ERROR:",
-// // //         error
-// // //       );
-
-
-// // //       return res.status(500).json({
-
-// // //         success: false,
-
-// // //         message:
-// // //           error.message ||
-// // //           "Failed to reject payment request.",
-
-// // //       });
-
-// // //     }
-
-// // //   };
-
-
-// // // // =====================================================
-// // // // EXPORT
-// // // // =====================================================
-
-// // // module.exports = {
-
-// // //   createPaymentRequest,
-
-// // //   getAllPaymentRequests,
-
-// // //   getPaymentRequestById,
-
-// // //   getPendingPaymentCount,
-
-// // //   acceptPaymentRequest,
-
-// // //   rejectPaymentRequest,
-
-// // // };
-
-
-
-
-
-
-
-
-
-// // const PaymentRequest = require("../models/PaymentRequest");
-// // const bookingController = require("./bookingController");
-
-// // const {
-// //   sendTicketEmail,
-// // } = require("../services/emailService");
-
-// // const {
-// //   sendAdminPaymentNotification,
-// // } = require("../services/emailService");
-
-
-// // // =====================================================
-// // // CREATE PAYMENT REQUEST
-// // // POST /api/payment-requests
-// // // =====================================================
-
-// // const createPaymentRequest = async (req, res) => {
-// //   try {
-// //     const {
-// //       bookingData,
-// //       amount,
-// //       bankName,
-// //       paymentId,
-// //       paymentDateTime,
-// //       customerEmail,
-// //     } = req.body;
-
-// //     // -----------------------------------------
-// //     // REQUIRED FIELDS
-// //     // -----------------------------------------
-
-// //     if (
-// //       !bookingData ||
-// //       amount === undefined ||
-// //       amount === null ||
-// //       !bankName ||
-// //       !paymentId ||
-// //       !paymentDateTime ||
-// //       !customerEmail
-// //     ) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "All payment details are required.",
-// //       });
-// //     }
-
-// //     // -----------------------------------------
-// //     // BANK VALIDATION
-// //     // -----------------------------------------
-
-// //     if (
-// //       !["ICICI Bank", "Bank of Baroda"].includes(
-// //         bankName
-// //       )
-// //     ) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Invalid bank selected.",
-// //       });
-// //     }
-
-// //     // -----------------------------------------
-// //     // SCREENSHOT VALIDATION
-// //     // -----------------------------------------
-
-// //     if (!req.file) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Payment screenshot is required.",
-// //       });
-// //     }
-
-// //     // -----------------------------------------
-// //     // PARSE BOOKING DATA
-// //     // -----------------------------------------
-
-// //     let parsedBookingData;
-
-// //     try {
-// //       parsedBookingData =
-// //         typeof bookingData === "string"
-// //           ? JSON.parse(bookingData)
-// //           : bookingData;
-// //     } catch (error) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Invalid booking data.",
-// //       });
-// //     }
-
-// //     // -----------------------------------------
-// //     // PAYMENT DATE VALIDATION
-// //     // -----------------------------------------
-
-// //     const paymentDate = new Date(
-// //       paymentDateTime
-// //     );
-
-// //     if (Number.isNaN(paymentDate.getTime())) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Invalid payment date/time.",
-// //       });
-// //     }
-
-// //     // -----------------------------------------
-// //     // CREATE PAYMENT REQUEST
-// //     // -----------------------------------------
-
-// //     const paymentRequest =
-// //       await PaymentRequest.create({
-// //         bookingData: parsedBookingData,
-
-// //         amount: Number(amount),
-
-// //         bankName,
-
-// //         paymentId:
-// //           String(paymentId).trim(),
-
-// //         screenshot:
-// //           `/uploads/payment-screenshots/${req.file.filename}`,
-
-// //         paymentDateTime: paymentDate,
-
-// //         customerEmail:
-// //           String(customerEmail)
-// //             .trim()
-// //             .toLowerCase(),
-
-// //         status: "Pending",
-
-// //         adminNote: "",
-
-// //         approvedBookingId: null,
-
-// //         processedAt: null,
-// //       });
-
-// //     // -----------------------------------------
-// //     // SEND ADMIN EMAIL
-// //     // -----------------------------------------
-
-// //     try {
-// //       await sendAdminPaymentNotification({
-// //         paymentRequest,
-// //       });
-
-// //       console.log(
-// //         "ADMIN PAYMENT NOTIFICATION SENT"
-// //       );
-// //     } catch (emailError) {
-// //       console.error(
-// //         "ADMIN PAYMENT NOTIFICATION FAILED:",
-// //         emailError.message
-// //       );
-// //     }
-
-// //     // -----------------------------------------
-// //     // RESPONSE
-// //     // -----------------------------------------
-
-// //     return res.status(201).json({
-// //       success: true,
-
-// //       message:
-// //         "Payment request submitted successfully. Waiting for admin verification.",
-
-// //       paymentRequest,
-// //     });
-
-// //   } catch (error) {
-
-// //     console.error(
-// //       "CREATE PAYMENT REQUEST ERROR:",
-// //       error
-// //     );
-
-// //     return res.status(500).json({
-// //       success: false,
-
-// //       message:
-// //         error.message ||
-// //         "Failed to create payment request.",
-// //     });
-// //   }
-// // };
-
-
-// // // =====================================================
-// // // GET ALL PAYMENT REQUESTS
-// // // GET /api/payment-requests
-// // // =====================================================
-
-// // const getAllPaymentRequests = async (
-// //   req,
-// //   res
-// // ) => {
-// //   try {
-
-// //     const requests =
-// //       await PaymentRequest.find()
-// //         .populate("approvedBookingId")
-// //         .sort({
-// //           createdAt: -1,
-// //         });
-
-// //     return res.status(200).json({
-// //       success: true,
-
-// //       count:
-// //         requests.length,
-
-// //       requests,
-// //     });
-
-// //   } catch (error) {
-
-// //     console.error(
-// //       "GET PAYMENT REQUESTS ERROR:",
-// //       error
-// //     );
-
-// //     return res.status(500).json({
-// //       success: false,
-
-// //       message:
-// //         error.message ||
-// //         "Failed to get payment requests.",
-// //     });
-// //   }
-// // };
-
-
-// // // =====================================================
-// // // GET SINGLE PAYMENT REQUEST
-// // // GET /api/payment-requests/:id
-// // // =====================================================
-
-// // const getPaymentRequestById =
-// //   async (req, res) => {
-
-// //     try {
-
-// //       const request =
-// //         await PaymentRequest.findById(
-// //           req.params.id
-// //         ).populate(
-// //           "approvedBookingId"
-// //         );
-
-// //       if (!request) {
-// //         return res.status(404).json({
-// //           success: false,
-
-// //           message:
-// //             "Payment request not found.",
-// //         });
-// //       }
-
-// //       return res.status(200).json({
-// //         success: true,
-// //         request,
-// //       });
-
-// //     } catch (error) {
-
-// //       console.error(
-// //         "GET PAYMENT REQUEST ERROR:",
-// //         error
-// //       );
-
-// //       return res.status(500).json({
-// //         success: false,
-
-// //         message:
-// //           error.message ||
-// //           "Failed to get payment request.",
-// //       });
-// //     }
-// //   };
-
-
-// // // =====================================================
-// // // GET PENDING PAYMENT COUNT
-// // // GET /api/payment-requests/pending-count
-// // // =====================================================
-
-// // const getPendingPaymentCount =
-// //   async (req, res) => {
-
-// //     try {
-
-// //       const count =
-// //         await PaymentRequest.countDocuments({
-// //           status: "Pending",
-// //         });
-
-// //       return res.status(200).json({
-// //         success: true,
-// //         count,
-// //       });
-
-// //     } catch (error) {
-
-// //       console.error(
-// //         "PENDING PAYMENT COUNT ERROR:",
-// //         error
-// //       );
-
-// //       return res.status(500).json({
-// //         success: false,
-
-// //         message:
-// //           error.message ||
-// //           "Failed to get pending payment count.",
-// //       });
-// //     }
-// //   };
-
-
-// // // =====================================================
-// // // ACCEPT PAYMENT REQUEST
-// // // PUT /api/payment-requests/:id/accept
-// // // =====================================================
-
-// // const acceptPaymentRequest =
-// //   async (req, res) => {
-
-// //     try {
-
-// //       const {
-// //         adminNote,
-// //       } = req.body || {};
-
-// //       // -----------------------------------------
-// //       // FIND REQUEST
-// //       // -----------------------------------------
-
-// //       const request =
-// //         await PaymentRequest.findById(
-// //           req.params.id
-// //         );
-
-// //       if (!request) {
-
-// //         return res.status(404).json({
-// //           success: false,
-
-// //           message:
-// //             "Payment request not found.",
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // ONLY PENDING CAN BE ACCEPTED
-// //       // -----------------------------------------
-
-// //       if (
-// //         request.status !==
-// //         "Pending"
-// //       ) {
-
-// //         return res.status(400).json({
-// //           success: false,
-
-// //           message:
-// //             `Payment request is already ${request.status}.`,
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // BOOKING DATA
-// //       // -----------------------------------------
-
-// //       if (
-// //         !request.bookingData
-// //       ) {
-
-// //         return res.status(400).json({
-// //           success: false,
-
-// //           message:
-// //             "Booking data is missing from payment request.",
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // COPY BOOKING DATA
-// //       // -----------------------------------------
-
-// //       const bookingData =
-// //         JSON.parse(
-// //           JSON.stringify(
-// //             request.bookingData
-// //           )
-// //         );
-
-// //       // -----------------------------------------
-// //       // FORCE VERIFIED PAYMENT
-// //       // -----------------------------------------
-
-// //       bookingData.paymentVerified =
-// //         true;
-
-// //       bookingData.paymentStatus =
-// //         "Paid";
-
-// //       bookingData.bookingStatus =
-// //         "Confirmed";
-
-// //       bookingData.paymentMethod =
-// //         request.bankName;
-
-// //       bookingData.paymentId =
-// //         request.paymentId;
-
-// //       // -----------------------------------------
-// //       // ADMIN ACCEPTED PAYMENT
-// //       // -----------------------------------------
-
-// //       bookingData.role =
-// //         "admin";
-
-// //       bookingData.userRole =
-// //         "admin";
-
-// //       bookingData.accountType =
-// //         "admin";
-
-// //       // -----------------------------------------
-// //       // FAKE RESPONSE OBJECT
-// //       // -----------------------------------------
-
-// //       let bookingResult = null;
-
-// //       const fakeResponse = {
-
-// //         statusCode: 200,
-
-// //         status(code) {
-// //           this.statusCode =
-// //             code;
-
-// //           return this;
-// //         },
-
-// //         json(data) {
-// //           bookingResult =
-// //             data;
-
-// //           return this;
-// //         },
-
-// //         send(data) {
-// //           bookingResult =
-// //             data;
-
-// //           return this;
-// //         },
-// //       };
-
-// //       // -----------------------------------------
-// //       // CREATE ACTUAL BOOKING
-// //       // -----------------------------------------
-
-// //       await bookingController.createBooking(
-// //         {
-// //           body: bookingData,
-
-// //           user: {
-// //             role: "admin",
-// //           },
-
-// //           headers:
-// //             req.headers || {},
-// //         },
-
-// //         fakeResponse
-// //       );
-
-// //       // -----------------------------------------
-// //       // CHECK BOOKING RESULT
-// //       // -----------------------------------------
-
-// //       if (
-// //         !bookingResult ||
-// //         !bookingResult.success
-// //       ) {
-
-// //         console.error(
-// //           "ACCEPT PAYMENT BOOKING ERROR:",
-// //           bookingResult
-// //         );
-
-// //         return res.status(
-// //           bookingResult?.statusCode ||
-// //             400
-// //         ).json({
-
-// //           success: false,
-
-// //           message:
-// //             bookingResult?.message ||
-// //             "Unable to create confirmed booking.",
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // GET CREATED BOOKING
-// //       // -----------------------------------------
-
-// //       const createdBooking =
-// //         bookingResult.booking;
-
-// //       if (
-// //         !createdBooking ||
-// //         !createdBooking._id
-// //       ) {
-
-// //         return res.status(500).json({
-// //           success: false,
-
-// //           message:
-// //             "Booking was created but booking details were not returned.",
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // UPDATE PAYMENT REQUEST
-// //       // -----------------------------------------
-
-// //       request.status =
-// //         "Accepted";
-
-// //       request.approvedBookingId =
-// //         createdBooking._id;
-
-// //       request.adminNote =
-// //         adminNote ||
-// //         "Payment verified and booking confirmed by admin.";
-
-// //       request.processedAt =
-// //         new Date();
-
-// //       await request.save();
-
-// //       // =====================================================
-// //       // SEND TICKET EMAIL TO CUSTOMER
-// //       // =====================================================
-
-// //       try {
-
-// //         await sendTicketEmail({
-
-// //           // IMPORTANT:
-// //           // Customer payment form me jo email
-// //           // bhari thi wahi use hogi.
-
-// //           to:
-// //             request.customerEmail,
-
-// //           booking:
-// //             createdBooking,
-// //         });
-
-// //         console.log(
-// //           "CUSTOMER TICKET EMAIL SENT:",
-// //           request.customerEmail
-// //         );
-
-// //       } catch (emailError) {
-
-// //         console.error(
-// //           "CUSTOMER TICKET EMAIL FAILED:",
-// //           emailError.message
-// //         );
-
-// //       }
-
-// //       // -----------------------------------------
-// //       // SUCCESS
-// //       // -----------------------------------------
-
-// //       return res.status(200).json({
-
-// //         success: true,
-
-// //         message:
-// //           "Payment accepted, booking confirmed and ticket email sent successfully.",
-
-// //         paymentRequest:
-// //           request,
-
-// //         booking:
-// //           createdBooking,
-
-// //         email:
-// //           request.customerEmail,
-// //       });
-
-// //     } catch (error) {
-
-// //       console.error(
-// //         "ACCEPT PAYMENT REQUEST ERROR:",
-// //         error
-// //       );
-
-// //       return res.status(500).json({
-
-// //         success: false,
-
-// //         message:
-// //           error.message ||
-// //           "Failed to accept payment request.",
-// //       });
-// //     }
-// //   };
-
-
-// // // =====================================================
-// // // REJECT PAYMENT REQUEST
-// // // PUT /api/payment-requests/:id/reject
-// // // =====================================================
-
-// // const rejectPaymentRequest =
-// //   async (req, res) => {
-
-// //     try {
-
-// //       const {
-// //         adminNote,
-// //       } = req.body || {};
-
-// //       // -----------------------------------------
-// //       // FIND REQUEST
-// //       // -----------------------------------------
-
-// //       const request =
-// //         await PaymentRequest.findById(
-// //           req.params.id
-// //         );
-
-// //       if (!request) {
-
-// //         return res.status(404).json({
-// //           success: false,
-
-// //           message:
-// //             "Payment request not found.",
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // ONLY PENDING CAN BE REJECTED
-// //       // -----------------------------------------
-
-// //       if (
-// //         request.status !==
-// //         "Pending"
-// //       ) {
-
-// //         return res.status(400).json({
-// //           success: false,
-
-// //           message:
-// //             `Payment request is already ${request.status}.`,
-// //         });
-// //       }
-
-// //       // -----------------------------------------
-// //       // REJECT
-// //       // -----------------------------------------
-
-// //       request.status =
-// //         "Rejected";
-
-// //       request.adminNote =
-// //         adminNote ||
-// //         "Payment rejected by admin.";
-
-// //       request.processedAt =
-// //         new Date();
-
-// //       request.approvedBookingId =
-// //         null;
-
-// //       await request.save();
-
-// //       // -----------------------------------------
-// //       // RESPONSE
-// //       // -----------------------------------------
-
-// //       return res.status(200).json({
-
-// //         success: true,
-
-// //         message:
-// //           "Payment request rejected successfully.",
-
-// //         request,
-// //       });
-
-// //     } catch (error) {
-
-// //       console.error(
-// //         "REJECT PAYMENT REQUEST ERROR:",
-// //         error
-// //       );
-
-// //       return res.status(500).json({
-
-// //         success: false,
-
-// //         message:
-// //           error.message ||
-// //           "Failed to reject payment request.",
-// //       });
-// //     }
-// //   };
-
-
-// // // =====================================================
-// // // EXPORT
-// // // =====================================================
-
-// // module.exports = {
-
-// //   createPaymentRequest,
-
-// //   getAllPaymentRequests,
-
-// //   getPaymentRequestById,
-
-// //   getPendingPaymentCount,
-
-// //   acceptPaymentRequest,
-
-// //   rejectPaymentRequest,
-// // };
-
-
-
+// const crypto = require("crypto");
 
 // const PaymentRequest = require("../models/PaymentRequest");
+// const User = require("../models/User");
+
 // const bookingController = require("./bookingController");
 
 // const {
@@ -2504,13 +11,40 @@
 //   sendTicketEmail,
 // } = require("../services/emailService");
 
-// // =====================================================
-// // CREATE PAYMENT REQUEST
-// // POST /api/payment-requests
-// // =====================================================
 
-// const createPaymentRequest = async (req, res) => {
+// // =========================================================
+// // ADMIN EMAIL
+// // =========================================================
+
+// const getAdminEmail = async () => {
+
+//   const admin = await User.findOne({
+//     role: "admin",
+//     isActive: true,
+//   }).select("email");
+
+//   if (!admin || !admin.email) {
+//     throw new Error(
+//       "Active admin email not found."
+//     );
+//   }
+
+//   return admin.email;
+// };
+
+
+// // =========================================================
+// // CREATE PAYMENT REQUEST
+// // CUSTOMER
+// // =========================================================
+
+// const createPaymentRequest = async (
+//   req,
+//   res
+// ) => {
+
 //   try {
+
 //     const {
 //       bookingData,
 //       amount,
@@ -2520,50 +54,83 @@
 //       customerEmail,
 //     } = req.body;
 
+
 //     // -----------------------------------------
-//     // REQUIRED FIELDS
+//     // VALIDATION
 //     // -----------------------------------------
 
-//     if (
-//       !bookingData ||
-//       amount === undefined ||
-//       amount === null ||
-//       !bankName ||
-//       !paymentId ||
-//       !paymentDateTime ||
-//       !customerEmail
-//     ) {
+//     if (!bookingData) {
+
 //       return res.status(400).json({
 //         success: false,
-//         message: "All payment details are required.",
+//         message: "Booking data is required.",
 //       });
+
 //     }
 
-//     // -----------------------------------------
-//     // BANK VALIDATION
-//     // -----------------------------------------
 
-//     if (
-//       !["ICICI Bank", "Bank of Baroda"].includes(
-//         bankName
-//       )
-//     ) {
+//     if (!amount) {
+
 //       return res.status(400).json({
 //         success: false,
-//         message: "Invalid bank selected.",
+//         message: "Payment amount is required.",
 //       });
+
 //     }
 
-//     // -----------------------------------------
-//     // SCREENSHOT VALIDATION
-//     // -----------------------------------------
+
+//     if (!bankName) {
+
+//       return res.status(400).json({
+//         success: false,
+//         message: "Bank name is required.",
+//       });
+
+//     }
+
+
+//     if (!paymentId) {
+
+//       return res.status(400).json({
+//         success: false,
+//         message: "Payment ID / UTR is required.",
+//       });
+
+//     }
+
+
+//     if (!paymentDateTime) {
+
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Payment date and time is required.",
+//       });
+
+//     }
+
+
+//     if (!customerEmail) {
+
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Customer email is required.",
+//       });
+
+//     }
+
 
 //     if (!req.file) {
+
 //       return res.status(400).json({
 //         success: false,
-//         message: "Payment screenshot is required.",
+//         message:
+//           "Payment screenshot is required.",
 //       });
+
 //     }
+
 
 //     // -----------------------------------------
 //     // PARSE BOOKING DATA
@@ -2572,670 +139,1414 @@
 //     let parsedBookingData;
 
 //     try {
+
 //       parsedBookingData =
 //         typeof bookingData === "string"
 //           ? JSON.parse(bookingData)
 //           : bookingData;
+
 //     } catch (error) {
+
 //       return res.status(400).json({
 //         success: false,
-//         message: "Invalid booking data.",
+//         message:
+//           "Invalid booking data format.",
 //       });
+
 //     }
 
-//     // -----------------------------------------
-//     // PAYMENT DATE VALIDATION
-//     // -----------------------------------------
-
-//     const paymentDate = new Date(
-//       paymentDateTime
-//     );
-
-//     if (Number.isNaN(paymentDate.getTime())) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid payment date/time.",
-//       });
-//     }
 
 //     // -----------------------------------------
-//     // CREATE PAYMENT REQUEST
+//     // SCREENSHOT PATH
+//     // -----------------------------------------
+
+//     const screenshot =
+//       `/uploads/payment-screenshots/${req.file.filename}`;
+
+
+//     // -----------------------------------------
+//     // CREATE REQUEST
 //     // -----------------------------------------
 
 //     const paymentRequest =
 //       await PaymentRequest.create({
-//         bookingData: parsedBookingData,
 
-//         amount: Number(amount),
+//         bookingData:
+//           parsedBookingData,
 
-//         bankName,
+//         amount:
+//           Number(amount),
+
+//         bankName:
+//           bankName.trim(),
 
 //         paymentId:
-//           String(paymentId).trim(),
+//           paymentId.trim(),
 
-//         screenshot:
-//           `/uploads/payment-screenshots/${req.file.filename}`,
-
-//         paymentDateTime: paymentDate,
+//         paymentDateTime:
+//           new Date(paymentDateTime),
 
 //         customerEmail:
-//           String(customerEmail)
+//           customerEmail
 //             .trim()
 //             .toLowerCase(),
 
-//         status: "Pending",
+//         screenshot,
 
-//         adminNote: "",
+//         status:
+//           "Pending",
 
-//         approvedBookingId: null,
+//         adminNote:
+//           "",
 
-//         processedAt: null,
 //       });
 
-//     // =================================================
-//     // SEND ADMIN EMAIL NOTIFICATION
-//     // =================================================
+
+//     // -----------------------------------------
+//     // EMAIL ACTION TOKEN
+//     // -----------------------------------------
+
+//     const rawAdminActionToken =
+//       crypto.randomBytes(32).toString("hex");
+
+
+//     const hashedAdminActionToken =
+//       crypto
+//         .createHash("sha256")
+//         .update(rawAdminActionToken)
+//         .digest("hex");
+
+
+//     paymentRequest.adminActionToken =
+//       hashedAdminActionToken;
+
+//     paymentRequest.adminActionTokenExpires =
+//       new Date(
+//         Date.now() +
+//           7 * 24 * 60 * 60 * 1000
+//       );
+
+
+//     await paymentRequest.save();
+
+
+//     // -----------------------------------------
+//     // GET ADMIN EMAIL
+//     // -----------------------------------------
+
+//     let adminEmail = null;
 
 //     try {
+
+//       adminEmail =
+//         await getAdminEmail();
+
+//     } catch (error) {
+
+//       console.error(
+//         "ADMIN EMAIL ERROR:",
+//         error.message
+//       );
+
+//     }
+
+
+//     // -----------------------------------------
+//     // SEND ADMIN NOTIFICATION
+//     // -----------------------------------------
+
+//     try {
+
 //       await sendAdminPaymentNotification({
+
 //         paymentRequest,
+
+//         adminActionToken:
+//           rawAdminActionToken,
+
+//         adminEmail,
+
 //       });
 
 //       console.log(
-//         "ADMIN PAYMENT NOTIFICATION SENT SUCCESSFULLY"
+//         "Admin payment notification sent to:",
+//         adminEmail
 //       );
+
 //     } catch (emailError) {
-//       // Email fail hone par payment request fail nahi hogi
+
 //       console.error(
 //         "ADMIN PAYMENT EMAIL ERROR:",
-//         emailError.message
+//         emailError
 //       );
+
+//       // Payment request remains saved.
 //     }
+
 
 //     // -----------------------------------------
 //     // RESPONSE
 //     // -----------------------------------------
 
 //     return res.status(201).json({
+
 //       success: true,
 
 //       message:
-//         "Payment request submitted successfully. Waiting for admin verification.",
+//         "Payment request submitted successfully. Admin will verify your payment and confirm the ticket.",
 
 //       paymentRequest,
+
 //     });
 
+
 //   } catch (error) {
+
 //     console.error(
 //       "CREATE PAYMENT REQUEST ERROR:",
 //       error
 //     );
 
+
 //     return res.status(500).json({
+
 //       success: false,
 
 //       message:
-//         error.message ||
-//         "Failed to create payment request.",
+//         "Server error while creating payment request.",
+
+//       error:
+//         error.message,
+
 //     });
+
 //   }
+
 // };
 
 
-// // =====================================================
+// // =========================================================
 // // GET ALL PAYMENT REQUESTS
-// // GET /api/payment-requests
-// // =====================================================
+// // ADMIN
+// // =========================================================
 
 // const getAllPaymentRequests = async (
 //   req,
 //   res
 // ) => {
+
 //   try {
+
 //     const requests =
 //       await PaymentRequest.find()
-//         .populate("approvedBookingId")
 //         .sort({
 //           createdAt: -1,
-//         });
+//         })
+//         .lean();
+
 
 //     return res.status(200).json({
+
 //       success: true,
 
 //       count:
 //         requests.length,
 
-//       requests,
+//       paymentRequests:
+//         requests,
+
 //     });
 
+
 //   } catch (error) {
+
 //     console.error(
 //       "GET PAYMENT REQUESTS ERROR:",
 //       error
 //     );
 
+
 //     return res.status(500).json({
+
+//       success: false,
+
+//       message:
+//         "Server error while fetching payment requests.",
+
+//     });
+
+//   }
+
+// };
+
+
+// // =========================================================
+// // GET PAYMENT REQUEST BY ID
+// // ADMIN
+// // =========================================================
+
+// const getPaymentRequestById = async (
+//   req,
+//   res
+// ) => {
+
+//   try {
+
+//     const request =
+//       await PaymentRequest.findById(
+//         req.params.id
+//       );
+
+
+//     if (!request) {
+
+//       return res.status(404).json({
+
+//         success: false,
+
+//         message:
+//           "Payment request not found.",
+
+//       });
+
+//     }
+
+
+//     return res.status(200).json({
+
+//       success: true,
+
+//       paymentRequest:
+//         request,
+
+//     });
+
+
+//   } catch (error) {
+
+//     console.error(
+//       "GET PAYMENT REQUEST ERROR:",
+//       error
+//     );
+
+
+//     return res.status(500).json({
+
+//       success: false,
+
+//       message:
+//         "Server error while fetching payment request.",
+
+//     });
+
+//   }
+
+// };
+
+
+// // =========================================================
+// // PENDING PAYMENT COUNT
+// // ADMIN
+// // =========================================================
+
+// const getPendingPaymentCount = async (
+//   req,
+//   res
+// ) => {
+
+//   try {
+
+//     const count =
+//       await PaymentRequest.countDocuments({
+//         status: "Pending",
+//       });
+
+
+//     return res.status(200).json({
+
+//       success: true,
+
+//       count,
+
+//     });
+
+
+//   } catch (error) {
+
+//     console.error(
+//       "PENDING PAYMENT COUNT ERROR:",
+//       error
+//     );
+
+
+//     return res.status(500).json({
+
+//       success: false,
+
+//       message:
+//         "Server error while getting pending payment count.",
+
+//     });
+
+//   }
+
+// };
+
+
+// // =========================================================
+// // CREATE CONFIRMED BOOKING
+// // =========================================================
+
+// const createConfirmedBooking = async (
+//   paymentRequest,
+//   adminUser
+// ) => {
+
+//   return new Promise(
+//     async (resolve, reject) => {
+
+//       try {
+
+//         let bookingResult = null;
+
+
+//         // -----------------------------------------
+//         // FAKE REQUEST
+//         // -----------------------------------------
+
+//         const fakeReq = {
+
+//           body: {
+
+//             ...paymentRequest.bookingData,
+
+//             paymentVerified:
+//               true,
+
+//             paymentStatus:
+//               "Paid",
+
+//             bookingStatus:
+//               "Confirmed",
+
+//             paymentMethod:
+//               paymentRequest.bankName,
+
+//             paymentId:
+//               paymentRequest.paymentId,
+
+//             amount:
+//               paymentRequest.amount,
+
+//           },
+
+//           user:
+//             adminUser || null,
+
+//         };
+
+
+//         // -----------------------------------------
+//         // FAKE RESPONSE
+//         // -----------------------------------------
+
+//         const fakeRes = {
+
+//           status(code) {
+
+//             return {
+
+//               json(data) {
+
+//                 if (code >= 400) {
+
+//                   reject(
+//                     new Error(
+//                       data?.message ||
+//                         "Booking creation failed."
+//                     )
+//                   );
+
+//                 } else {
+
+//                   bookingResult =
+//                     data;
+
+//                   resolve(data);
+
+//                 }
+
+//               },
+
+//             };
+
+//           },
+
+//           json(data) {
+
+//             bookingResult =
+//               data;
+
+//             resolve(data);
+
+//           },
+
+//         };
+
+
+//         await bookingController.createBooking(
+//           fakeReq,
+//           fakeRes
+//         );
+
+
+//       } catch (error) {
+
+//         reject(error);
+
+//       }
+
+//     }
+//   );
+
+// };
+
+
+// // =========================================================
+// // ACCEPT PAYMENT REQUEST
+// // ADMIN DASHBOARD
+// // =========================================================
+
+// const acceptPaymentRequest = async (
+//   req,
+//   res
+// ) => {
+
+//   try {
+
+//     const request =
+//       await PaymentRequest.findById(
+//         req.params.id
+//       );
+
+
+//     if (!request) {
+
+//       return res.status(404).json({
+
+//         success: false,
+
+//         message:
+//           "Payment request not found.",
+
+//       });
+
+//     }
+
+
+//     // -----------------------------------------
+//     // ALREADY PROCESSED
+//     // -----------------------------------------
+
+//     if (
+//       String(request.status)
+//         .toLowerCase() !==
+//       "pending"
+//     ) {
+
+//       return res.status(400).json({
+
+//         success: false,
+
+//         message:
+//           `Payment request is already ${request.status}.`,
+
+//       });
+
+//     }
+
+
+//     // -----------------------------------------
+//     // ADMIN NOTE
+//     // -----------------------------------------
+
+//     const adminNote =
+//       req.body?.adminNote || "";
+
+
+//     // -----------------------------------------
+//     // ADMIN USER
+//     // -----------------------------------------
+
+//     const adminUser =
+//       req.user || null;
+
+
+//     // -----------------------------------------
+//     // CREATE BOOKING
+//     // -----------------------------------------
+
+//     const bookingResponse =
+//       await createConfirmedBooking(
+//         request,
+//         adminUser
+//       );
+
+
+//     if (
+//       !bookingResponse ||
+//       bookingResponse.success === false
+//     ) {
+
+//       throw new Error(
+//         bookingResponse?.message ||
+//           "Booking could not be confirmed."
+//       );
+
+//     }
+
+
+//     // -----------------------------------------
+//     // GET BOOKING
+//     // -----------------------------------------
+
+//     const booking =
+//       bookingResponse.booking ||
+//       bookingResponse.data ||
+//       bookingResponse;
+
+
+//     // -----------------------------------------
+//     // UPDATE PAYMENT REQUEST
+//     // -----------------------------------------
+
+//     request.status =
+//       "Accepted";
+
+//     request.adminNote =
+//       adminNote;
+
+//     request.paymentVerified =
+//       true;
+
+//     request.paymentStatus =
+//       "Paid";
+
+//     request.bookingStatus =
+//       "Confirmed";
+
+
+//     if (booking?._id) {
+
+//       request.bookingId =
+//         booking._id;
+
+//     }
+
+
+//     await request.save();
+
+
+//     // -----------------------------------------
+//     // CUSTOMER TICKET EMAIL
+//     // -----------------------------------------
+
+//     let customerEmailSent =
+//       false;
+
+//     try {
+
+//       await sendTicketEmail({
+
+//         to:
+//           request.customerEmail,
+
+//         booking,
+
+//       });
+
+//       customerEmailSent =
+//         true;
+
+//       console.log(
+//         "Customer ticket email sent to:",
+//         request.customerEmail
+//       );
+
+//     } catch (emailError) {
+
+//       console.error(
+//         "CUSTOMER TICKET EMAIL ERROR:",
+//         emailError
+//       );
+
+//     }
+
+
+//     // -----------------------------------------
+//     // ADMIN EMAIL
+//     // USE LOGGED-IN ADMIN EMAIL
+//     // -----------------------------------------
+
+//     let adminEmail = null;
+
+//     try {
+
+//       // First preference:
+//       // logged-in admin email
+
+//       if (
+//         req.user &&
+//         req.user.email
+//       ) {
+
+//         adminEmail =
+//           req.user.email;
+
+//       } else {
+
+//         adminEmail =
+//           await getAdminEmail();
+
+//       }
+
+
+//     } catch (error) {
+
+//       console.error(
+//         "ADMIN EMAIL ERROR:",
+//         error.message
+//       );
+
+//     }
+
+
+//     // -----------------------------------------
+//     // ADMIN TICKET EMAIL
+//     // -----------------------------------------
+
+//     let adminEmailSent =
+//       false;
+
+//     if (adminEmail) {
+
+//       try {
+
+//         await sendTicketEmail({
+
+//           to:
+//             adminEmail,
+
+//           booking,
+
+//         });
+
+//         adminEmailSent =
+//           true;
+
+//         console.log(
+//           "Admin ticket email sent to:",
+//           adminEmail
+//         );
+
+//       } catch (emailError) {
+
+//         console.error(
+//           "ADMIN TICKET EMAIL ERROR:",
+//           emailError
+//         );
+
+//       }
+
+//     }
+
+
+//     // -----------------------------------------
+//     // RESPONSE
+//     // -----------------------------------------
+
+//     return res.status(200).json({
+
+//       success: true,
+
+//       message:
+//         "Payment accepted and booking confirmed successfully.",
+
+//       paymentRequest:
+//         request,
+
+//       booking,
+
+//       emails: {
+
+//         customer:
+//           customerEmailSent,
+
+//         admin:
+//           adminEmailSent,
+
+//         adminEmail:
+//           adminEmail,
+
+//       },
+
+//     });
+
+
+//   } catch (error) {
+
+//     console.error(
+//       "ACCEPT PAYMENT REQUEST ERROR:",
+//       error
+//     );
+
+
+//     return res.status(500).json({
+
 //       success: false,
 
 //       message:
 //         error.message ||
-//         "Failed to get payment requests.",
+//         "Server error while accepting payment.",
+
 //     });
+
 //   }
+
 // };
 
 
-// // =====================================================
-// // GET SINGLE PAYMENT REQUEST
-// // GET /api/payment-requests/:id
-// // =====================================================
+// // =========================================================
+// // REJECT PAYMENT REQUEST
+// // ADMIN DASHBOARD
+// // =========================================================
 
-// const getPaymentRequestById =
-//   async (req, res) => {
-//     try {
-//       const request =
-//         await PaymentRequest.findById(
-//           req.params.id
-//         ).populate(
-//           "approvedBookingId"
-//         );
+// const rejectPaymentRequest = async (
+//   req,
+//   res
+// ) => {
 
-//       if (!request) {
-//         return res.status(404).json({
-//           success: false,
+//   try {
 
-//           message:
-//             "Payment request not found.",
-//         });
-//       }
+//     const request =
+//       await PaymentRequest.findById(
+//         req.params.id
+//       );
 
-//       return res.status(200).json({
-//         success: true,
 
+//     if (!request) {
+
+//       return res.status(404).json({
+
+//         success: false,
+
+//         message:
+//           "Payment request not found.",
+
+//       });
+
+//     }
+
+
+//     // -----------------------------------------
+//     // ALREADY PROCESSED
+//     // -----------------------------------------
+
+//     if (
+//       String(request.status)
+//         .toLowerCase() !==
+//       "pending"
+//     ) {
+
+//       return res.status(400).json({
+
+//         success: false,
+
+//         message:
+//           `Payment request is already ${request.status}.`,
+
+//       });
+
+//     }
+
+
+//     // -----------------------------------------
+//     // UPDATE
+//     // -----------------------------------------
+
+//     request.status =
+//       "Rejected";
+
+//     request.adminNote =
+//       req.body?.adminNote || "";
+
+//     request.paymentVerified =
+//       false;
+
+//     request.paymentStatus =
+//       "Rejected";
+
+//     request.bookingStatus =
+//       "Rejected";
+
+
+//     await request.save();
+
+
+//     // -----------------------------------------
+//     // NO TICKET EMAIL
+//     // -----------------------------------------
+
+//     return res.status(200).json({
+
+//       success: true,
+
+//       message:
+//         "Payment request rejected successfully.",
+
+//       paymentRequest:
 //         request,
-//       });
 
-//     } catch (error) {
-//       console.error(
-//         "GET PAYMENT REQUEST ERROR:",
-//         error
-//       );
-
-//       return res.status(500).json({
-//         success: false,
-
-//         message:
-//           error.message ||
-//           "Failed to get payment request.",
-//       });
-//     }
-//   };
+//     });
 
 
-// // =====================================================
-// // GET PENDING PAYMENT COUNT
-// // GET /api/payment-requests/pending-count
-// // =====================================================
+//   } catch (error) {
 
-// const getPendingPaymentCount =
-//   async (req, res) => {
+//     console.error(
+//       "REJECT PAYMENT REQUEST ERROR:",
+//       error
+//     );
+
+
+//     return res.status(500).json({
+
+//       success: false,
+
+//       message:
+//         "Server error while rejecting payment.",
+
+//     });
+
+//   }
+
+// };
+
+
+// // =========================================================
+// // EMAIL ACTION TOKEN VALIDATION
+// // =========================================================
+
+// const validateEmailActionToken =
+//   async (
+//     req,
+//     res
+//   ) => {
+
 //     try {
-//       const count =
-//         await PaymentRequest.countDocuments({
-//           status: "Pending",
-//         });
-
-//       return res.status(200).json({
-//         success: true,
-//         count,
-//       });
-
-//     } catch (error) {
-//       console.error(
-//         "PENDING PAYMENT COUNT ERROR:",
-//         error
-//       );
-
-//       return res.status(500).json({
-//         success: false,
-
-//         message:
-//           error.message ||
-//           "Failed to get pending payment count.",
-//       });
-//     }
-//   };
-
-
-// // =====================================================
-// // ACCEPT PAYMENT REQUEST
-// // PUT /api/payment-requests/:id/accept
-// // =====================================================
-
-// const acceptPaymentRequest =
-//   async (req, res) => {
-//     try {
-//       const {
-//         adminNote,
-//       } = req.body || {};
-
-//       // -----------------------------------------
-//       // FIND REQUEST
-//       // -----------------------------------------
 
 //       const request =
 //         await PaymentRequest.findById(
 //           req.params.id
 //         );
 
-//       if (!request) {
-//         return res.status(404).json({
-//           success: false,
 
+//       if (!request) {
+
+//         return {
+//           valid: false,
 //           message:
 //             "Payment request not found.",
-//         });
+//         };
+
 //       }
 
-//       // -----------------------------------------
-//       // ONLY PENDING CAN BE ACCEPTED
-//       // -----------------------------------------
 
 //       if (
-//         request.status !==
-//         "Pending"
+//         String(request.status)
+//           .toLowerCase() !==
+//         "pending"
 //       ) {
-//         return res.status(400).json({
-//           success: false,
 
+//         return {
+//           valid: false,
 //           message:
 //             `Payment request is already ${request.status}.`,
-//         });
+//         };
+
 //       }
 
-//       // -----------------------------------------
-//       // BOOKING DATA CHECK
-//       // -----------------------------------------
+
+//       const token =
+//         req.query.token;
+
+
+//       if (!token) {
+
+//         return {
+//           valid: false,
+//           message:
+//             "Action token is missing.",
+//         };
+
+//       }
+
+
+//       const hashedToken =
+//         crypto
+//           .createHash("sha256")
+//           .update(token)
+//           .digest("hex");
+
 
 //       if (
-//         !request.bookingData
+//         hashedToken !==
+//         request.adminActionToken
 //       ) {
-//         return res.status(400).json({
-//           success: false,
 
+//         return {
+//           valid: false,
 //           message:
-//             "Booking data is missing from payment request.",
-//         });
+//             "Invalid action token.",
+//         };
+
 //       }
 
-//       // -----------------------------------------
-//       // COPY BOOKING DATA
-//       // -----------------------------------------
 
-//       const bookingData =
-//         JSON.parse(
-//           JSON.stringify(
-//             request.bookingData
-//           )
-//         );
+//       if (
+//         request.adminActionTokenExpires &&
+//         request.adminActionTokenExpires <
+//           new Date()
+//       ) {
 
-//       // -----------------------------------------
-//       // FORCE VERIFIED PAYMENT
-//       // -----------------------------------------
+//         return {
+//           valid: false,
+//           message:
+//             "Action token has expired.",
+//         };
 
-//       bookingData.paymentVerified =
-//         true;
+//       }
 
-//       bookingData.paymentStatus =
-//         "Paid";
 
-//       bookingData.bookingStatus =
-//         "Confirmed";
-
-//       bookingData.paymentMethod =
-//         request.bankName;
-
-//       bookingData.paymentId =
-//         request.paymentId;
-
-//       // -----------------------------------------
-//       // ADMIN ACCEPTED PAYMENT
-//       // -----------------------------------------
-
-//       bookingData.role =
-//         "admin";
-
-//       bookingData.userRole =
-//         "admin";
-
-//       bookingData.accountType =
-//         "admin";
-
-//       // -----------------------------------------
-//       // FAKE RESPONSE
-//       // -----------------------------------------
-
-//       let bookingResult = null;
-
-//       const fakeResponse = {
-//         statusCode: 200,
-
-//         status(code) {
-//           this.statusCode =
-//             code;
-
-//           return this;
-//         },
-
-//         json(data) {
-//           bookingResult =
-//             data;
-
-//           return this;
-//         },
-
-//         send(data) {
-//           bookingResult =
-//             data;
-
-//           return this;
-//         },
+//       return {
+//         valid: true,
+//         request,
 //       };
 
-//       // -----------------------------------------
-//       // CREATE CONFIRMED BOOKING
-//       // -----------------------------------------
 
-//       await bookingController.createBooking(
-//         {
-//           body: bookingData,
+//     } catch (error) {
 
-//           user: {
-//             role: "admin",
-//           },
-
-//           headers:
-//             req.headers || {},
-//         },
-
-//         fakeResponse
+//       console.error(
+//         "EMAIL TOKEN VALIDATION ERROR:",
+//         error
 //       );
 
-//       // -----------------------------------------
-//       // CHECK BOOKING RESULT
-//       // -----------------------------------------
 
-//       if (
-//         !bookingResult ||
-//         !bookingResult.success
-//       ) {
-//         console.error(
-//           "ACCEPT PAYMENT BOOKING ERROR:",
-//           bookingResult
+//       return {
+//         valid: false,
+//         message:
+//           "Unable to validate action token.",
+//       };
+
+//     }
+
+//   };
+
+
+// // =========================================================
+// // EMAIL ACCEPT
+// // =========================================================
+
+// const emailAcceptPaymentRequest =
+//   async (
+//     req,
+//     res
+//   ) => {
+
+//     try {
+
+//       const validation =
+//         await validateEmailActionToken(
+//           req,
+//           res
 //         );
 
-//         return res.status(
-//           bookingResult?.statusCode ||
-//             400
-//         ).json({
-//           success: false,
 
-//           message:
-//             bookingResult?.message ||
-//             "Unable to create confirmed booking.",
-//         });
+//       if (!validation.valid) {
+
+//         return res.status(400).send(
+//           `<h2>${validation.message}</h2>`
+//         );
+
 //       }
 
+
+//       const request =
+//         validation.request;
+
+
 //       // -----------------------------------------
-//       // GET CREATED BOOKING
+//       // CREATE BOOKING
 //       // -----------------------------------------
 
-//       const createdBooking =
-//         bookingResult.booking;
+//       const bookingResponse =
+//         await createConfirmedBooking(
+//           request,
+//           null
+//         );
+
 
 //       if (
-//         !createdBooking ||
-//         !createdBooking._id
+//         !bookingResponse ||
+//         bookingResponse.success === false
 //       ) {
-//         return res.status(500).json({
-//           success: false,
 
-//           message:
-//             "Booking was created but booking details were not returned.",
-//         });
+//         throw new Error(
+//           bookingResponse?.message ||
+//             "Booking could not be confirmed."
+//         );
+
 //       }
 
-//       // =================================================
-//       // UPDATE PAYMENT REQUEST
-//       // =================================================
+
+//       const booking =
+//         bookingResponse.booking ||
+//         bookingResponse.data ||
+//         bookingResponse;
+
+
+//       // -----------------------------------------
+//       // UPDATE REQUEST
+//       // -----------------------------------------
 
 //       request.status =
 //         "Accepted";
 
-//       request.approvedBookingId =
-//         createdBooking._id;
+//       request.paymentVerified =
+//         true;
 
-//       request.adminNote =
-//         adminNote ||
-//         "Payment verified and booking confirmed by admin.";
+//       request.paymentStatus =
+//         "Paid";
 
-//       request.processedAt =
-//         new Date();
+//       request.bookingStatus =
+//         "Confirmed";
+
+//       request.adminActionToken =
+//         undefined;
+
+//       request.adminActionTokenExpires =
+//         undefined;
+
+
+//       if (booking?._id) {
+
+//         request.bookingId =
+//           booking._id;
+
+//       }
+
 
 //       await request.save();
 
-//       // =================================================
-//       // SEND TICKET PDF TO CUSTOMER
-//       // =================================================
 
-//       let customerEmailSent = false;
+//       // -----------------------------------------
+//       // CUSTOMER EMAIL
+//       // -----------------------------------------
 
 //       try {
+
 //         await sendTicketEmail({
+
 //           to:
 //             request.customerEmail,
 
-//           booking:
-//             createdBooking,
+//           booking,
+
 //         });
 
-//         customerEmailSent = true;
-
-//         console.log(
-//           "CUSTOMER TICKET PDF SENT:",
-//           request.customerEmail
-//         );
-
 //       } catch (emailError) {
+
 //         console.error(
-//           "CUSTOMER TICKET PDF ERROR:",
-//           emailError.message
+//           "EMAIL ACTION CUSTOMER TICKET ERROR:",
+//           emailError
 //         );
+
 //       }
 
-//       // =================================================
-//       // SEND SAME TICKET PDF TO ADMIN
-//       // =================================================
 
-//       let adminEmailSent = false;
+//       // -----------------------------------------
+//       // ADMIN EMAIL
+//       // -----------------------------------------
 
 //       try {
-//         await sendTicketEmail({
-//           to:
-//             process.env.EMAIL_USER,
 
-//           booking:
-//             createdBooking,
+//         const adminEmail =
+//           await getAdminEmail();
+
+//         await sendTicketEmail({
+
+//           to:
+//             adminEmail,
+
+//           booking,
+
 //         });
 
-//         adminEmailSent = true;
-
-//         console.log(
-//           "ADMIN TICKET PDF SENT:",
-//           process.env.EMAIL_USER
-//         );
-
 //       } catch (emailError) {
+
 //         console.error(
-//           "ADMIN TICKET PDF ERROR:",
-//           emailError.message
+//           "EMAIL ACTION ADMIN TICKET ERROR:",
+//           emailError
 //         );
+
 //       }
 
-//       // =================================================
-//       // SUCCESS
-//       // =================================================
 
-//       return res.status(200).json({
-//         success: true,
+//       return res.send(`
 
-//         message:
-//           "Payment accepted, booking confirmed and ticket PDF processed successfully.",
+//         <html>
 
-//         paymentRequest:
-//           request,
+//           <head>
 
-//         booking:
-//           createdBooking,
+//             <title>
+//               Payment Accepted
+//             </title>
 
-//         emailStatus: {
-//           customer:
-//             customerEmailSent,
+//             <meta
+//               name="viewport"
+//               content="width=device-width, initial-scale=1"
+//             />
 
-//           admin:
-//             adminEmailSent,
-//         },
-//       });
+//           </head>
+
+//           <body
+//             style="
+//               font-family:Arial;
+//               text-align:center;
+//               padding:50px;
+//             "
+//           >
+
+//             <h1>
+//               Payment Accepted
+//             </h1>
+
+//             <p>
+//               Booking confirmed successfully.
+//             </p>
+
+//             <p>
+//               Ticket has been sent to the
+//               customer email.
+//             </p>
+
+//           </body>
+
+//         </html>
+
+//       `);
+
 
 //     } catch (error) {
+
 //       console.error(
-//         "ACCEPT PAYMENT REQUEST ERROR:",
+//         "EMAIL ACCEPT ERROR:",
 //         error
 //       );
 
-//       return res.status(500).json({
-//         success: false,
 
-//         message:
-//           error.message ||
-//           "Failed to accept payment request.",
-//       });
+//       return res.status(500).send(`
+
+//         <html>
+
+//           <body
+//             style="
+//               font-family:Arial;
+//               text-align:center;
+//               padding:50px;
+//             "
+//           >
+
+//             <h2>
+//               Unable to confirm payment.
+//             </h2>
+
+//             <p>
+//               ${error.message}
+//             </p>
+
+//           </body>
+
+//         </html>
+
+//       `);
+
 //     }
+
 //   };
 
 
-// // =====================================================
-// // REJECT PAYMENT REQUEST
-// // PUT /api/payment-requests/:id/reject
-// // =====================================================
+// // =========================================================
+// // EMAIL REJECT
+// // =========================================================
 
-// const rejectPaymentRequest =
-//   async (req, res) => {
+// const emailRejectPaymentRequest =
+//   async (
+//     req,
+//     res
+//   ) => {
+
 //     try {
-//       const {
-//         adminNote,
-//       } = req.body || {};
 
-//       // -----------------------------------------
-//       // FIND REQUEST
-//       // -----------------------------------------
-
-//       const request =
-//         await PaymentRequest.findById(
-//           req.params.id
+//       const validation =
+//         await validateEmailActionToken(
+//           req,
+//           res
 //         );
 
-//       if (!request) {
-//         return res.status(404).json({
-//           success: false,
 
-//           message:
-//             "Payment request not found.",
-//         });
+//       if (!validation.valid) {
+
+//         return res.status(400).send(
+//           `<h2>${validation.message}</h2>`
+//         );
+
 //       }
 
-//       // -----------------------------------------
-//       // ONLY PENDING CAN BE REJECTED
-//       // -----------------------------------------
 
-//       if (
-//         request.status !==
-//         "Pending"
-//       ) {
-//         return res.status(400).json({
-//           success: false,
+//       const request =
+//         validation.request;
 
-//           message:
-//             `Payment request is already ${request.status}.`,
-//         });
-//       }
-
-//       // -----------------------------------------
-//       // REJECT PAYMENT
-//       // -----------------------------------------
 
 //       request.status =
 //         "Rejected";
 
-//       request.adminNote =
-//         adminNote ||
-//         "Payment rejected by admin.";
+//       request.paymentVerified =
+//         false;
 
-//       request.processedAt =
-//         new Date();
+//       request.paymentStatus =
+//         "Rejected";
 
-//       request.approvedBookingId =
-//         null;
+//       request.bookingStatus =
+//         "Rejected";
+
+//       request.adminActionToken =
+//         undefined;
+
+//       request.adminActionTokenExpires =
+//         undefined;
+
 
 //       await request.save();
 
-//       // -----------------------------------------
-//       // RESPONSE
-//       // -----------------------------------------
 
-//       return res.status(200).json({
-//         success: true,
+//       return res.send(`
 
-//         message:
-//           "Payment request rejected successfully.",
+//         <html>
 
-//         request,
-//       });
+//           <head>
+
+//             <title>
+//               Payment Rejected
+//             </title>
+
+//             <meta
+//               name="viewport"
+//               content="width=device-width, initial-scale=1"
+//             />
+
+//           </head>
+
+//           <body
+//             style="
+//               font-family:Arial;
+//               text-align:center;
+//               padding:50px;
+//             "
+//           >
+
+//             <h1>
+//               Payment Rejected
+//             </h1>
+
+//             <p>
+//               The payment request has been rejected.
+//             </p>
+
+//           </body>
+
+//         </html>
+
+//       `);
+
 
 //     } catch (error) {
+
 //       console.error(
-//         "REJECT PAYMENT REQUEST ERROR:",
+//         "EMAIL REJECT ERROR:",
 //         error
 //       );
 
-//       return res.status(500).json({
-//         success: false,
 
-//         message:
-//           error.message ||
-//           "Failed to reject payment request.",
-//       });
+//       return res.status(500).send(`
+
+//         <html>
+
+//           <body
+//             style="
+//               font-family:Arial;
+//               text-align:center;
+//               padding:50px;
+//             "
+//           >
+
+//             <h2>
+//               Unable to reject payment.
+//             </h2>
+
+//             <p>
+//               ${error.message}
+//             </p>
+
+//           </body>
+
+//         </html>
+
+//       `);
+
 //     }
+
 //   };
 
 
-// // =====================================================
+// // =========================================================
 // // EXPORT
-// // =====================================================
+// // =========================================================
 
 // module.exports = {
+
 //   createPaymentRequest,
+
 //   getAllPaymentRequests,
+
 //   getPaymentRequestById,
+
 //   getPendingPaymentCount,
+
 //   acceptPaymentRequest,
+
 //   rejectPaymentRequest,
+
+//   emailAcceptPaymentRequest,
+
+//   emailRejectPaymentRequest,
+
 // };
 
 
 const crypto = require("crypto");
 
 const PaymentRequest = require("../models/PaymentRequest");
+const User = require("../models/User");
 const bookingController = require("./bookingController");
 
 const {
@@ -3244,12 +1555,35 @@ const {
 } = require("../services/emailService");
 
 
-/* =========================================================
-   CREATE PAYMENT REQUEST
-========================================================= */
+// =========================================================
+// GET ADMIN EMAIL
+// =========================================================
+
+const getAdminEmail = async () => {
+  const admin = await User.findOne({
+    role: "admin",
+    isActive: true,
+  }).sort({ createdAt: -1 });
+
+  if (!admin) {
+    throw new Error("Active admin account not found.");
+  }
+
+  if (!admin.email) {
+    throw new Error("Admin email is missing.");
+  }
+
+  return admin.email.trim().toLowerCase();
+};
+
+
+// =========================================================
+// CREATE PAYMENT REQUEST
+// =========================================================
 
 const createPaymentRequest = async (req, res) => {
   try {
+
     const {
       bookingData,
       amount,
@@ -3261,7 +1595,8 @@ const createPaymentRequest = async (req, res) => {
 
     const screenshot = req.file;
 
-    /* ---------- VALIDATION ---------- */
+
+    // ---------------- VALIDATION ----------------
 
     if (!bookingData) {
       return res.status(400).json({
@@ -3316,24 +1651,28 @@ const createPaymentRequest = async (req, res) => {
     }
 
 
-    /* ---------- PARSE BOOKING DATA ---------- */
+    // ---------------- BOOKING DATA ----------------
 
     let parsedBookingData;
 
     try {
+
       parsedBookingData =
         typeof bookingData === "string"
           ? JSON.parse(bookingData)
           : bookingData;
+
     } catch (error) {
+
       return res.status(400).json({
         success: false,
         message: "Invalid booking data.",
       });
+
     }
 
 
-    /* ---------- PAYMENT DATE ---------- */
+    // ---------------- PAYMENT DATE ----------------
 
     const parsedPaymentDate =
       new Date(paymentDateTime);
@@ -3343,26 +1682,33 @@ const createPaymentRequest = async (req, res) => {
         parsedPaymentDate.getTime()
       )
     ) {
+
       return res.status(400).json({
         success: false,
         message: "Invalid payment date/time.",
       });
+
     }
 
 
-    /* ---------- SCREENSHOT URL ---------- */
+    // ---------------- SCREENSHOT ----------------
 
     const screenshotPath =
       `/uploads/payment-screenshots/${screenshot.filename}`;
 
 
-    /* ---------- CREATE REQUEST ---------- */
+    // =====================================================
+    // CREATE PAYMENT REQUEST
+    // =====================================================
 
     const request =
       await PaymentRequest.create({
-        bookingData: parsedBookingData,
 
-        amount: Number(amount),
+        bookingData:
+          parsedBookingData,
+
+        amount:
+          Number(amount),
 
         bankName,
 
@@ -3380,35 +1726,39 @@ const createPaymentRequest = async (req, res) => {
             .trim()
             .toLowerCase(),
 
-        status: "Pending",
+        status:
+          "Pending",
 
-        adminActionToken: null,
+        adminActionToken:
+          null,
 
-        adminActionTokenExpiresAt: null,
+        adminActionTokenExpiresAt:
+          null,
+
       });
 
 
-    /* =====================================================
-       CREATE ADMIN EMAIL TOKEN
-    ===================================================== */
+    // =====================================================
+    // CREATE EMAIL ACTION TOKEN
+    // =====================================================
 
-    const adminActionToken =
-      crypto.randomBytes(32).toString("hex");
+    const rawToken =
+      crypto
+        .randomBytes(32)
+        .toString("hex");
+
 
     const tokenHash =
       crypto
         .createHash("sha256")
-        .update(adminActionToken)
+        .update(rawToken)
         .digest("hex");
 
-    /*
-      Token 7 days tak valid rahega.
-    */
 
-    const tokenExpiresAt =
+    const tokenExpiry =
       new Date(
         Date.now() +
-          7 * 24 * 60 * 60 * 1000
+        7 * 24 * 60 * 60 * 1000
       );
 
 
@@ -3416,87 +1766,170 @@ const createPaymentRequest = async (req, res) => {
       tokenHash;
 
     request.adminActionTokenExpiresAt =
-      tokenExpiresAt;
+      tokenExpiry;
 
     await request.save();
 
 
-    /* =====================================================
-       SEND ADMIN EMAIL
-    ===================================================== */
+    // =====================================================
+    // FIND ADMIN EMAIL
+    // =====================================================
+
+    let adminEmail;
 
     try {
-      await sendAdminPaymentNotification({
-        paymentRequest: request,
 
-        /*
-          IMPORTANT:
-          Email service ko raw token dena hai
-          taaki email button mein URL ban sake.
-        */
-        adminActionToken,
-      });
+      adminEmail =
+        await getAdminEmail();
 
       console.log(
-        "Admin payment notification email sent."
+        "===================================="
       );
 
-    } catch (emailError) {
+      console.log(
+        "ADMIN PAYMENT EMAIL:"
+      );
+
+      console.log(
+        adminEmail
+      );
+
+      console.log(
+        "===================================="
+      );
+
+    } catch (error) {
+
       console.error(
-        "ADMIN PAYMENT EMAIL ERROR:",
-        emailError.message
+        "ADMIN EMAIL LOOKUP ERROR:",
+        error
       );
 
-      /*
-        Email fail hone par payment request
-        delete nahi hogi.
-      */
     }
 
 
-    /* ---------- RESPONSE ---------- */
+    // =====================================================
+    // SEND ADMIN PAYMENT REQUEST EMAIL
+    // =====================================================
+
+    if (adminEmail) {
+
+      try {
+
+        await sendAdminPaymentNotification({
+
+          paymentRequest:
+            request,
+
+          adminActionToken:
+            rawToken,
+
+          adminEmail:
+            adminEmail,
+
+        });
+
+        console.log(
+          "ADMIN PAYMENT REQUEST EMAIL SENT TO:",
+          adminEmail
+        );
+
+      } catch (emailError) {
+
+        console.error(
+          "===================================="
+        );
+
+        console.error(
+          "ADMIN PAYMENT EMAIL FAILED"
+        );
+
+        console.error(
+          emailError
+        );
+
+        console.error(
+          "===================================="
+        );
+
+      }
+
+    } else {
+
+      console.error(
+        "ADMIN EMAIL NOT FOUND - EMAIL NOT SENT"
+      );
+
+    }
+
+
+    // =====================================================
+    // RESPONSE
+    // =====================================================
 
     return res.status(201).json({
-      success: true,
+
+      success:
+        true,
 
       message:
         "Payment request submitted successfully. Waiting for admin verification.",
 
       paymentRequest: {
-        id: request._id,
-        status: request.status,
-        amount: request.amount,
-        bankName: request.bankName,
+
+        id:
+          request._id,
+
+        status:
+          request.status,
+
+        amount:
+          request.amount,
+
+        bankName:
+          request.bankName,
+
         customerEmail:
           request.customerEmail,
+
       },
+
     });
 
+
   } catch (error) {
+
     console.error(
       "CREATE PAYMENT REQUEST ERROR:",
       error
     );
 
     return res.status(500).json({
-      success: false,
+
+      success:
+        false,
+
       message:
         error.message ||
         "Failed to create payment request.",
+
     });
+
   }
 };
 
 
-/* =========================================================
-   GET ALL PAYMENT REQUESTS
-========================================================= */
+// =========================================================
+// GET ALL PAYMENT REQUESTS
+// =========================================================
 
 const getAllPaymentRequests = async (
   req,
   res
 ) => {
+
   try {
+
     const requests =
       await PaymentRequest.find()
         .sort({
@@ -3504,205 +1937,426 @@ const getAllPaymentRequests = async (
         });
 
     return res.status(200).json({
-      success: true,
-      count: requests.length,
-      paymentRequests: requests,
+
+      success:
+        true,
+
+      count:
+        requests.length,
+
+      paymentRequests:
+        requests,
+
     });
 
   } catch (error) {
+
     console.error(
       "GET PAYMENT REQUESTS ERROR:",
       error
     );
 
     return res.status(500).json({
-      success: false,
+
+      success:
+        false,
+
       message:
         "Failed to fetch payment requests.",
+
     });
+
   }
+
 };
 
 
-/* =========================================================
-   GET SINGLE PAYMENT REQUEST
-========================================================= */
+// =========================================================
+// GET SINGLE PAYMENT REQUEST
+// =========================================================
 
 const getPaymentRequestById = async (
   req,
   res
 ) => {
+
   try {
+
     const request =
       await PaymentRequest.findById(
         req.params.id
       );
 
     if (!request) {
+
       return res.status(404).json({
-        success: false,
+
+        success:
+          false,
+
         message:
           "Payment request not found.",
+
       });
+
     }
 
     return res.status(200).json({
-      success: true,
-      paymentRequest: request,
+
+      success:
+        true,
+
+      paymentRequest:
+        request,
+
     });
 
   } catch (error) {
+
     console.error(
       "GET PAYMENT REQUEST ERROR:",
       error
     );
 
     return res.status(500).json({
-      success: false,
+
+      success:
+        false,
+
       message:
         "Failed to fetch payment request.",
+
     });
+
   }
+
 };
 
 
-/* =========================================================
-   GET PENDING COUNT
-========================================================= */
+// =========================================================
+// GET PENDING COUNT
+// =========================================================
 
 const getPendingPaymentCount = async (
   req,
   res
 ) => {
+
   try {
+
     const count =
       await PaymentRequest.countDocuments({
         status: "Pending",
       });
 
     return res.status(200).json({
-      success: true,
+
+      success:
+        true,
+
       count,
+
     });
 
   } catch (error) {
+
     console.error(
       "GET PENDING COUNT ERROR:",
       error
     );
 
     return res.status(500).json({
-      success: false,
+
+      success:
+        false,
+
       message:
         "Failed to get pending payment count.",
+
     });
+
   }
+
 };
 
 
-/* =========================================================
-   CREATE BOOKING FROM PAYMENT REQUEST
-========================================================= */
+// =========================================================
+// CREATE CONFIRMED BOOKING
+// =========================================================
 
-const createConfirmedBooking =
-  async (request) => {
+const createConfirmedBooking = async (
+  request
+) => {
 
-    return new Promise(
-      (resolve, reject) => {
+  return new Promise(
+    (resolve, reject) => {
 
-        let responseSent = false;
+      let responseSent =
+        false;
 
-        const fakeResponse = {
-          status: function (statusCode) {
-            return {
-              json: function (data) {
 
-                responseSent = true;
+      const fakeResponse = {
 
-                if (
-                  statusCode >= 200 &&
-                  statusCode < 300
-                ) {
-                  resolve(data);
-                } else {
-                  reject(
-                    new Error(
-                      data?.message ||
-                      "Booking creation failed."
-                    )
-                  );
-                }
+        status: function (
+          statusCode
+        ) {
 
-                return data;
-              },
-            };
-          },
+          return {
 
-          json: function (data) {
+            json: function (
+              data
+            ) {
 
-            if (responseSent) {
+              responseSent =
+                true;
+
+              if (
+                statusCode >= 200 &&
+                statusCode < 300
+              ) {
+
+                resolve(data);
+
+              } else {
+
+                reject(
+                  new Error(
+                    data?.message ||
+                    "Booking creation failed."
+                  )
+                );
+
+              }
+
               return data;
-            }
 
-            responseSent = true;
+            },
 
-            resolve(data);
+          };
 
+        },
+
+
+        json: function (
+          data
+        ) {
+
+          if (responseSent) {
             return data;
-          },
-        };
+          }
+
+          responseSent =
+            true;
+
+          resolve(data);
+
+          return data;
+
+        },
+
+      };
 
 
-        const fakeRequest = {
-          body: {
-            ...request.bookingData,
+      const fakeRequest = {
 
-            paymentVerified: true,
+        body: {
 
-            paymentStatus: "Paid",
+          ...request.bookingData,
 
-            bookingStatus: "Confirmed",
+          paymentVerified:
+            true,
 
-            paymentMethod:
-              request.bankName,
+          paymentStatus:
+            "Paid",
 
-            paymentId:
-              request.paymentId,
-          },
+          bookingStatus:
+            "Confirmed",
 
-          user: {
-            role: "admin",
-            userRole: "admin",
-            accountType: "admin",
-          },
+          paymentMethod:
+            request.bankName,
 
-          headers: {},
+          paymentId:
+            request.paymentId,
 
-          get: () => undefined,
-        };
+        },
+
+        user: {
+
+          role:
+            "admin",
+
+          userRole:
+            "admin",
+
+          accountType:
+            "admin",
+
+        },
+
+        headers: {},
+
+        get: () =>
+          undefined,
+
+      };
 
 
-        Promise.resolve(
-          bookingController.createBooking(
-            fakeRequest,
-            fakeResponse
-          )
-        ).catch((error) => {
-          reject(error);
-        });
-      }
+      Promise.resolve(
+
+        bookingController.createBooking(
+          fakeRequest,
+          fakeResponse
+        )
+
+      ).catch(
+        reject
+      );
+
+    }
+  );
+
+};
+
+
+// =========================================================
+// SEND TICKETS
+// =========================================================
+
+const sendConfirmedTickets = async (
+  request,
+  createdBooking,
+  adminEmail
+) => {
+
+  let customerEmailSent =
+    false;
+
+  let adminEmailSent =
+    false;
+
+
+  // =====================================================
+  // CUSTOMER PDF
+  // =====================================================
+
+  try {
+
+    const customerEmail =
+      String(
+        request.customerEmail || ""
+      )
+        .trim()
+        .toLowerCase();
+
+
+    if (!customerEmail) {
+
+      throw new Error(
+        "Customer email is missing."
+      );
+
+    }
+
+
+    await sendTicketEmail({
+
+      to:
+        customerEmail,
+
+      booking:
+        createdBooking,
+
+    });
+
+
+    customerEmailSent =
+      true;
+
+
+    console.log(
+      "CUSTOMER TICKET PDF SENT TO:",
+      customerEmail
     );
+
+
+  } catch (error) {
+
+    console.error(
+      "CUSTOMER TICKET EMAIL ERROR:",
+      error
+    );
+
+  }
+
+
+  // =====================================================
+  // ADMIN PDF
+  // =====================================================
+
+  try {
+
+    if (!adminEmail) {
+
+      throw new Error(
+        "Admin email is missing."
+      );
+
+    }
+
+
+    await sendTicketEmail({
+
+      to:
+        adminEmail,
+
+      booking:
+        createdBooking,
+
+    });
+
+
+    adminEmailSent =
+      true;
+
+
+    console.log(
+      "ADMIN TICKET PDF SENT TO:",
+      adminEmail
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "ADMIN TICKET EMAIL ERROR:",
+      error
+    );
+
+  }
+
+
+  return {
+
+    customer:
+      customerEmailSent,
+
+    admin:
+      adminEmailSent,
+
   };
 
+};
 
-/* =========================================================
-   ACCEPT PAYMENT REQUEST
-========================================================= */
+
+// =========================================================
+// ACCEPT PAYMENT REQUEST
+// =========================================================
 
 const acceptPaymentRequest = async (
   req,
   res
 ) => {
+
   try {
 
     const request =
@@ -3710,34 +2364,46 @@ const acceptPaymentRequest = async (
         req.params.id
       );
 
+
     if (!request) {
+
       return res.status(404).json({
-        success: false,
+
+        success:
+          false,
+
         message:
           "Payment request not found.",
+
       });
+
     }
 
 
-    /* ---------- ALREADY PROCESSED ---------- */
+    if (
+      request.status !== "Pending"
+    ) {
 
-    if (request.status !== "Pending") {
       return res.status(400).json({
-        success: false,
+
+        success:
+          false,
 
         message:
           `Payment request is already ${request.status}.`,
+
       });
+
     }
 
-
-    /* ---------- ADMIN NOTE ---------- */
 
     const adminNote =
       req.body?.adminNote || "";
 
 
-    /* ---------- CREATE CONFIRMED BOOKING ---------- */
+    // ===================================================
+    // CREATE BOOKING
+    // ===================================================
 
     let bookingResult;
 
@@ -3756,16 +2422,22 @@ const acceptPaymentRequest = async (
       );
 
       return res.status(500).json({
-        success: false,
+
+        success:
+          false,
 
         message:
           bookingError.message ||
-          "Payment accepted but booking creation failed.",
+          "Booking creation failed.",
+
       });
+
     }
 
 
-    /* ---------- FIND CREATED BOOKING ---------- */
+    // ===================================================
+    // GET CREATED BOOKING
+    // ===================================================
 
     const createdBooking =
       bookingResult?.booking ||
@@ -3782,20 +2454,69 @@ const acceptPaymentRequest = async (
     if (!bookingId) {
 
       console.error(
-        "Booking result:",
+        "INVALID BOOKING RESULT:",
         bookingResult
       );
 
       return res.status(500).json({
-        success: false,
+
+        success:
+          false,
 
         message:
           "Booking was not created correctly.",
+
       });
+
     }
 
 
-    /* ---------- UPDATE PAYMENT REQUEST ---------- */
+    // ===================================================
+    // GET ADMIN EMAIL
+    // ===================================================
+
+    let adminEmail =
+      null;
+
+
+    // Dashboard login wala admin
+    if (
+      req.user?.email
+    ) {
+
+      adminEmail =
+        String(
+          req.user.email
+        )
+          .trim()
+          .toLowerCase();
+
+    }
+
+
+    // Email action se accept hua
+    if (!adminEmail) {
+
+      try {
+
+        adminEmail =
+          await getAdminEmail();
+
+      } catch (error) {
+
+        console.error(
+          "ADMIN EMAIL LOOKUP ERROR:",
+          error
+        );
+
+      }
+
+    }
+
+
+    // ===================================================
+    // UPDATE PAYMENT REQUEST
+    // ===================================================
 
     request.status =
       "Accepted";
@@ -3809,96 +2530,36 @@ const acceptPaymentRequest = async (
     request.processedAt =
       new Date();
 
-    /*
-      Token ko clear kar do.
-      Isse email Accept/Reject link
-      dobara use nahi ho sakega.
-    */
-
     request.adminActionToken =
       null;
 
     request.adminActionTokenExpiresAt =
       null;
 
+
     await request.save();
 
 
-    /* =====================================================
-       SEND CUSTOMER TICKET
-    ===================================================== */
+    // ===================================================
+    // SEND CUSTOMER + ADMIN PDF
+    // ===================================================
 
-    let customerEmailSent =
-      false;
-
-    let adminEmailSent =
-      false;
-
-
-    try {
-
-      await sendTicketEmail({
-        to:
-          request.customerEmail,
-
-        booking:
-          createdBooking,
-      });
-
-      customerEmailSent =
-        true;
-
-      console.log(
-        "Customer ticket email sent."
+    const emailStatus =
+      await sendConfirmedTickets(
+        request,
+        createdBooking,
+        adminEmail
       );
 
-    } catch (emailError) {
 
-      console.error(
-        "CUSTOMER TICKET EMAIL ERROR:",
-        emailError.message
-      );
-    }
-
-
-    /* =====================================================
-       SEND ADMIN TICKET
-    ===================================================== */
-
-    try {
-
-      if (process.env.EMAIL_USER) {
-
-        await sendTicketEmail({
-          to:
-            process.env.EMAIL_USER,
-
-          booking:
-            createdBooking,
-        });
-
-        adminEmailSent =
-          true;
-
-        console.log(
-          "Admin ticket email sent."
-        );
-      }
-
-    } catch (emailError) {
-
-      console.error(
-        "ADMIN TICKET EMAIL ERROR:",
-        emailError.message
-      );
-    }
-
-
-    /* ---------- RESPONSE ---------- */
+    // ===================================================
+    // RESPONSE
+    // ===================================================
 
     return res.status(200).json({
 
-      success: true,
+      success:
+        true,
 
       message:
         "Payment accepted and booking confirmed successfully.",
@@ -3909,14 +2570,12 @@ const acceptPaymentRequest = async (
       paymentRequest:
         request,
 
-      emailStatus: {
-        customer:
-          customerEmailSent,
+      emailStatus:
 
-        admin:
-          adminEmailSent,
-      },
+        emailStatus,
+
     });
+
 
   } catch (error) {
 
@@ -3927,24 +2586,29 @@ const acceptPaymentRequest = async (
 
     return res.status(500).json({
 
-      success: false,
+      success:
+        false,
 
       message:
         error.message ||
         "Failed to accept payment request.",
+
     });
+
   }
+
 };
 
 
-/* =========================================================
-   REJECT PAYMENT REQUEST
-========================================================= */
+// =========================================================
+// REJECT PAYMENT REQUEST
+// =========================================================
 
 const rejectPaymentRequest = async (
   req,
   res
 ) => {
+
   try {
 
     const request =
@@ -3952,24 +2616,36 @@ const rejectPaymentRequest = async (
         req.params.id
       );
 
+
     if (!request) {
+
       return res.status(404).json({
-        success: false,
+
+        success:
+          false,
+
         message:
           "Payment request not found.",
+
       });
+
     }
 
 
-    /* ---------- ALREADY PROCESSED ---------- */
+    if (
+      request.status !== "Pending"
+    ) {
 
-    if (request.status !== "Pending") {
       return res.status(400).json({
-        success: false,
+
+        success:
+          false,
 
         message:
           `Payment request is already ${request.status}.`,
+
       });
+
     }
 
 
@@ -3986,29 +2662,29 @@ const rejectPaymentRequest = async (
     request.processedAt =
       new Date();
 
-    /*
-      Email action token clear.
-    */
-
     request.adminActionToken =
       null;
 
     request.adminActionTokenExpiresAt =
       null;
 
+
     await request.save();
 
 
     return res.status(200).json({
 
-      success: true,
+      success:
+        true,
 
       message:
         "Payment request rejected successfully.",
 
       paymentRequest:
         request,
+
     });
+
 
   } catch (error) {
 
@@ -4019,107 +2695,142 @@ const rejectPaymentRequest = async (
 
     return res.status(500).json({
 
-      success: false,
+      success:
+        false,
 
       message:
         error.message ||
         "Failed to reject payment request.",
+
     });
+
   }
+
 };
 
 
-/* =========================================================
-   EMAIL ACTION TOKEN VALIDATION
-========================================================= */
+// =========================================================
+// VALIDATE EMAIL ACTION TOKEN
+// =========================================================
 
-const validateEmailActionToken =
-  async (
-    requestId,
-    token
-  ) => {
+const validateEmailActionToken = async (
+  requestId,
+  token
+) => {
 
-    if (!token) {
-      throw new Error(
-        "Action token is missing."
-      );
-    }
+  if (!token) {
 
-    const request =
-      await PaymentRequest.findById(
-        requestId
-      );
+    throw new Error(
+      "Action token is missing."
+    );
 
-    if (!request) {
-      throw new Error(
-        "Payment request not found."
-      );
-    }
+  }
 
 
-    if (request.status !== "Pending") {
-      throw new Error(
-        `Payment request is already ${request.status}.`
-      );
-    }
+  const request =
+    await PaymentRequest.findById(
+      requestId
+    );
 
 
-    if (
-      !request.adminActionToken
-    ) {
-      throw new Error(
-        "This email action link is no longer valid."
-      );
-    }
+  if (!request) {
+
+    throw new Error(
+      "Payment request not found."
+    );
+
+  }
 
 
-    if (
-      request.adminActionTokenExpiresAt &&
-      request.adminActionTokenExpiresAt <
-        new Date()
-    ) {
-      throw new Error(
-        "This email action link has expired."
-      );
-    }
+  if (
+    request.status !== "Pending"
+  ) {
+
+    throw new Error(
+      `Payment request is already ${request.status}.`
+    );
+
+  }
 
 
-    const tokenHash =
-      crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
+  if (
+    !request.adminActionToken
+  ) {
+
+    throw new Error(
+      "This email action link is no longer valid."
+    );
+
+  }
 
 
-    const tokenMatches =
-      crypto.timingSafeEqual(
-        Buffer.from(
-          tokenHash
-        ),
+  if (
+    request.adminActionTokenExpiresAt &&
+    request.adminActionTokenExpiresAt < new Date()
+  ) {
 
-        Buffer.from(
-          request.adminActionToken
-        )
-      );
+    throw new Error(
+      "This email action link has expired."
+    );
 
-
-    if (!tokenMatches) {
-      throw new Error(
-        "Invalid email action token."
-      );
-    }
+  }
 
 
-    return request;
-  };
+  const tokenHash =
+    crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
 
 
-/* =========================================================
-   EMAIL ACCEPT ACTION
-========================================================= */
+  const storedHash =
+    String(
+      request.adminActionToken
+    );
+
+
+  if (
+    tokenHash.length !==
+    storedHash.length
+  ) {
+
+    throw new Error(
+      "Invalid email action token."
+    );
+
+  }
+
+
+  const tokenMatches =
+    crypto.timingSafeEqual(
+      Buffer.from(tokenHash),
+      Buffer.from(storedHash)
+    );
+
+
+  if (!tokenMatches) {
+
+    throw new Error(
+      "Invalid email action token."
+    );
+
+  }
+
+
+  return request;
+
+};
+
+
+// =========================================================
+// EMAIL ACCEPT
+// =========================================================
 
 const emailAcceptPaymentRequest =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
 
     try {
 
@@ -4130,43 +2841,58 @@ const emailAcceptPaymentRequest =
         );
 
 
-      /*
-        Same acceptance logic ko reuse
-        karne ke liye fake request/response
-        create kar rahe hain.
-      */
+      let result;
+
 
       const fakeRequest = {
+
         params: {
-          id: request._id,
+
+          id:
+            request._id,
+
         },
 
         body: {
+
           adminNote:
             "Accepted from admin email.",
+
         },
+
       };
 
 
-      let result;
-
       const fakeResponse = {
+
         status: function (
           statusCode
         ) {
 
           return {
-            json: function (data) {
+
+            json: function (
+              data
+            ) {
 
               result = {
-                statusCode,
-                data,
+
+                statusCode:
+                  statusCode,
+
+                data:
+                  data,
+
               };
 
               return data;
+
             },
+
           };
+
         },
+
       };
 
 
@@ -4185,15 +2911,27 @@ const emailAcceptPaymentRequest =
           result?.data?.message ||
           "Failed to accept payment.";
 
+
         return res
           .status(
             result?.statusCode ||
-              500
+            500
           )
           .send(`
+
             <html>
+
               <head>
-                <title>Saiyed Travels</title>
+
+                <title>
+                  Saiyed Travels
+                </title>
+
+                <meta
+                  name="viewport"
+                  content="width=device-width, initial-scale=1"
+                />
+
               </head>
 
               <body style="
@@ -4202,74 +2940,91 @@ const emailAcceptPaymentRequest =
                 padding:50px;
               ">
 
-                <h1>❌ Payment Acceptance Failed</h1>
+                <h1>
+                  ❌ Payment Acceptance Failed
+                </h1>
 
                 <p>
                   ${message}
                 </p>
 
               </body>
+
             </html>
+
           `);
+
       }
 
 
-      return res.status(200).send(`
-        <html>
-          <head>
-            <title>Saiyed Travels</title>
+      return res
+        .status(200)
+        .send(`
 
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1"
-            />
-          </head>
+          <html>
 
-          <body style="
-            font-family:Arial;
-            text-align:center;
-            padding:40px 20px;
-            background:#f5f7fa;
-          ">
+            <head>
 
-            <div style="
-              max-width:500px;
-              margin:auto;
-              background:white;
-              padding:30px;
-              border-radius:15px;
-              box-shadow:0 5px 25px rgba(0,0,0,.1);
+              <title>
+                Saiyed Travels
+              </title>
+
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
+
+            </head>
+
+
+            <body style="
+              font-family:Arial;
+              text-align:center;
+              padding:40px 20px;
+              background:#f5f7fa;
             ">
 
               <div style="
-                font-size:55px;
+                max-width:500px;
+                margin:auto;
+                background:white;
+                padding:30px;
+                border-radius:15px;
+                box-shadow:0 5px 25px rgba(0,0,0,.1);
               ">
-                ✅
+
+                <div style="
+                  font-size:55px;
+                ">
+                  ✅
+                </div>
+
+                <h1>
+                  Payment Accepted
+                </h1>
+
+                <p>
+                  Payment has been verified
+                  and the booking has been confirmed.
+                </p>
+
+                <p>
+                  Ticket PDF has been sent
+                  to the customer and admin.
+                </p>
+
+                <strong>
+                  Saiyed Travels
+                </strong>
+
               </div>
 
-              <h1>
-                Payment Accepted
-              </h1>
+            </body>
 
-              <p>
-                Payment has been verified and
-                the booking has been confirmed.
-              </p>
+          </html>
 
-              <p>
-                The customer ticket has been
-                sent by email.
-              </p>
+        `);
 
-              <strong>
-                Saiyed Travels
-              </strong>
-
-            </div>
-
-          </body>
-        </html>
-      `);
 
     } catch (error) {
 
@@ -4278,41 +3033,56 @@ const emailAcceptPaymentRequest =
         error
       );
 
-      return res.status(400).send(`
-        <html>
 
-          <head>
-            <title>Saiyed Travels</title>
-          </head>
+      return res
+        .status(400)
+        .send(`
 
-          <body style="
-            font-family:Arial;
-            text-align:center;
-            padding:50px;
-          ">
+          <html>
 
-            <h1>
-              ❌ Action Failed
-            </h1>
+            <head>
 
-            <p>
-              ${error.message}
-            </p>
+              <title>
+                Saiyed Travels
+              </title>
 
-          </body>
+            </head>
 
-        </html>
-      `);
+
+            <body style="
+              font-family:Arial;
+              text-align:center;
+              padding:50px;
+            ">
+
+              <h1>
+                ❌ Action Failed
+              </h1>
+
+              <p>
+                ${error.message}
+              </p>
+
+            </body>
+
+          </html>
+
+        `);
+
     }
+
   };
 
 
-/* =========================================================
-   EMAIL REJECT ACTION
-========================================================= */
+// =========================================================
+// EMAIL REJECT
+// =========================================================
 
 const emailRejectPaymentRequest =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
 
     try {
 
@@ -4323,37 +3093,58 @@ const emailRejectPaymentRequest =
         );
 
 
+      let result;
+
+
       const fakeRequest = {
+
         params: {
-          id: request._id,
+
+          id:
+            request._id,
+
         },
 
         body: {
+
           adminNote:
             "Rejected from admin email.",
+
         },
+
       };
 
 
-      let result;
-
       const fakeResponse = {
+
         status: function (
           statusCode
         ) {
 
           return {
-            json: function (data) {
+
+            json: function (
+              data
+            ) {
 
               result = {
-                statusCode,
-                data,
+
+                statusCode:
+                  statusCode,
+
+                data:
+                  data,
+
               };
 
               return data;
+
             },
+
           };
+
         },
+
       };
 
 
@@ -4372,17 +3163,15 @@ const emailRejectPaymentRequest =
           result?.data?.message ||
           "Failed to reject payment.";
 
+
         return res
           .status(
             result?.statusCode ||
-              500
+            500
           )
           .send(`
-            <html>
 
-              <head>
-                <title>Saiyed Travels</title>
-              </head>
+            <html>
 
               <body style="
                 font-family:Arial;
@@ -4401,68 +3190,75 @@ const emailRejectPaymentRequest =
               </body>
 
             </html>
+
           `);
+
       }
 
 
-      return res.status(200).send(`
-        <html>
+      return res
+        .status(200)
+        .send(`
 
-          <head>
+          <html>
 
-            <title>
-              Saiyed Travels
-            </title>
+            <head>
 
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1"
-            />
+              <title>
+                Saiyed Travels
+              </title>
 
-          </head>
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
+
+            </head>
 
 
-          <body style="
-            font-family:Arial;
-            text-align:center;
-            padding:40px 20px;
-            background:#f5f7fa;
-          ">
-
-            <div style="
-              max-width:500px;
-              margin:auto;
-              background:white;
-              padding:30px;
-              border-radius:15px;
-              box-shadow:0 5px 25px rgba(0,0,0,.1);
+            <body style="
+              font-family:Arial;
+              text-align:center;
+              padding:40px 20px;
+              background:#f5f7fa;
             ">
 
               <div style="
-                font-size:55px;
+                max-width:500px;
+                margin:auto;
+                background:white;
+                padding:30px;
+                border-radius:15px;
+                box-shadow:0 5px 25px rgba(0,0,0,.1);
               ">
-                ❌
+
+                <div style="
+                  font-size:55px;
+                ">
+                  ❌
+                </div>
+
+                <h1>
+                  Payment Rejected
+                </h1>
+
+                <p>
+                  The payment request has been
+                  rejected successfully.
+                </p>
+
+                <strong>
+                  Saiyed Travels
+                </strong>
+
               </div>
 
-              <h1>
-                Payment Rejected
-              </h1>
+            </body>
 
-              <p>
-                The payment request has been
-                rejected successfully.
-              </p>
+          </html>
 
-              <strong>
-                Saiyed Travels
-              </strong>
+        `);
 
-            </div>
-
-          </body>
-
-        </html>
-      `);
 
     } catch (error) {
 
@@ -4471,38 +3267,41 @@ const emailRejectPaymentRequest =
         error
       );
 
-      return res.status(400).send(`
-        <html>
 
-          <head>
-            <title>Saiyed Travels</title>
-          </head>
+      return res
+        .status(400)
+        .send(`
 
-          <body style="
-            font-family:Arial;
-            text-align:center;
-            padding:50px;
-          ">
+          <html>
 
-            <h1>
-              ❌ Action Failed
-            </h1>
+            <body style="
+              font-family:Arial;
+              text-align:center;
+              padding:50px;
+            ">
 
-            <p>
-              ${error.message}
-            </p>
+              <h1>
+                ❌ Action Failed
+              </h1>
 
-          </body>
+              <p>
+                ${error.message}
+              </p>
 
-        </html>
-      `);
+            </body>
+
+          </html>
+
+        `);
+
     }
+
   };
 
 
-/* =========================================================
-   EXPORTS
-========================================================= */
+// =========================================================
+// EXPORTS
+// =========================================================
 
 module.exports = {
 
@@ -4521,4 +3320,5 @@ module.exports = {
   emailAcceptPaymentRequest,
 
   emailRejectPaymentRequest,
+
 };
