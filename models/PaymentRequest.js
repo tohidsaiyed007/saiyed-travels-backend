@@ -1,3 +1,6 @@
+
+
+
 // const mongoose = require("mongoose");
 
 // const paymentRequestSchema = new mongoose.Schema(
@@ -64,6 +67,17 @@
 //       type: Date,
 //       default: null,
 //     },
+
+//     // Admin email action token
+//     adminActionToken: {
+//       type: String,
+//       default: null,
+//     },
+
+//     adminActionTokenExpiresAt: {
+//       type: Date,
+//       default: null,
+//     },
 //   },
 //   {
 //     timestamps: true,
@@ -76,13 +90,6 @@
 // );
 
 // module.exports = PaymentRequest;
-
-
-
-
-
-
-
 
 
 const mongoose = require("mongoose");
@@ -122,11 +129,19 @@ const paymentRequestSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Customer email
     customerEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+
+    // Customer WhatsApp number
+    whatsappNumber: {
       type: String,
       required: true,
       trim: true,
-      lowercase: true,
     },
 
     status: {
