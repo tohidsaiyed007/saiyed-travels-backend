@@ -1887,6 +1887,7 @@ const ticketSchema = new mongoose.Schema(
   }
 );
 
+
 // =====================================================
 // CABIN SCHEMA
 // =====================================================
@@ -1916,23 +1917,147 @@ const cabinSchema = new mongoose.Schema(
       min: 0,
     },
 
+    // =================================================
+    // CUSTOMER CABIN PRICE
+    // =================================================
+
     price: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Admin-defined baggage
+    // =================================================
+    // AGENT CABIN PRICE
+    // =================================================
+
+    agentPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // =================================================
+    // EXACT ADMIN CABIN BAGGAGE
+    // =================================================
+
+    cabinBaggage: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // =================================================
+    // EXACT ADMIN CHECK-IN BAGGAGE
+    // =================================================
+
+    checkinBaggage: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // =================================================
+    // OLD / COMPATIBILITY BAGGAGE
+    // =================================================
+
     baggage: {
       type: String,
       default: "",
       trim: true,
+    },
+
+    // =================================================
+    // FARE DETAILS
+    // =================================================
+
+    adultFare: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    childFare: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    infantFare: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    agentAdultFare: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    agentChildFare: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    agentInfantFare: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
   },
   {
     _id: false,
   }
 );
+
+// // =====================================================
+// // CABIN SCHEMA
+// // =====================================================
+
+// const cabinSchema = new mongoose.Schema(
+//   {
+//     name: {
+//       type: String,
+//       enum: [
+//         "Economy",
+//         "Premium Economy",
+//         "Business",
+//         "First Class",
+//       ],
+//       required: true,
+//     },
+
+//     totalSeats: {
+//       type: Number,
+//       required: true,
+//       min: 0,
+//     },
+
+//     availableSeats: {
+//       type: Number,
+//       required: true,
+//       min: 0,
+//     },
+
+//     price: {
+//       type: Number,
+//       required: true,
+//       min: 0,
+//     },
+
+//     // Admin-defined baggage
+//     baggage: {
+//       type: String,
+//       default: "",
+//       trim: true,
+//     },
+//   },
+//   {
+//     _id: false,
+//   }
+// );
 
 // =====================================================
 // STOP SCHEMA
