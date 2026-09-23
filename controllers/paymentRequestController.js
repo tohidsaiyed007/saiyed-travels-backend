@@ -752,6 +752,127 @@ const getCustomerPaymentStatus =
       }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//       // =========================================================
+// // DELETE PAYMENT REQUEST
+// // DELETE /api/payment-requests/:id
+// //
+// // Pending request cannot be deleted.
+// // Accepted / Rejected request can be deleted.
+// // IMPORTANT:
+// // This only deletes PaymentRequest.
+// // Confirmed Booking will NOT be deleted.
+// // =========================================================
+
+// const deletePaymentRequest = async (req, res) => {
+//   try {
+//     const request = await PaymentRequest.findById(
+//       req.params.id
+//     );
+
+//     // -------------------------------------------------------
+//     // REQUEST NOT FOUND
+//     // -------------------------------------------------------
+
+//     if (!request) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Payment request not found.",
+//       });
+//     }
+
+//     // -------------------------------------------------------
+//     // PENDING CANNOT BE DELETED
+//     // -------------------------------------------------------
+
+//     if (
+//       String(request.status).toLowerCase() ===
+//       "pending"
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Pending payment request cannot be deleted. Accept or reject it first.",
+//       });
+//     }
+
+//     // -------------------------------------------------------
+//     // DELETE PAYMENT REQUEST
+//     // -------------------------------------------------------
+
+//     await PaymentRequest.findByIdAndDelete(
+//       req.params.id
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message:
+//         "Payment request deleted successfully.",
+//     });
+//   } catch (error) {
+//     console.error(
+//       "DELETE PAYMENT REQUEST ERROR:",
+//       error
+//     );
+
+//     return res.status(500).json({
+//       success: false,
+//       message:
+//         error.message ||
+//         "Failed to delete payment request.",
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // ===================================================
       // ACCEPTED
       // ===================================================
@@ -1588,6 +1709,119 @@ const rejectPaymentRequest =
   };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // =========================================================
+// DELETE PAYMENT REQUEST
+// DELETE /api/payment-requests/:id
+//
+// Pending request cannot be deleted.
+// Accepted / Rejected request can be deleted.
+// IMPORTANT:
+// This only deletes PaymentRequest.
+// Confirmed Booking will NOT be deleted.
+// =========================================================
+
+const deletePaymentRequest = async (req, res) => {
+  try {
+    const request = await PaymentRequest.findById(
+      req.params.id
+    );
+
+    // -------------------------------------------------------
+    // REQUEST NOT FOUND
+    // -------------------------------------------------------
+
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment request not found.",
+      });
+    }
+
+    // -------------------------------------------------------
+    // PENDING CANNOT BE DELETED
+    // -------------------------------------------------------
+
+    if (
+      String(request.status).toLowerCase() ===
+      "pending"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Pending payment request cannot be deleted. Accept or reject it first.",
+      });
+    }
+
+    // -------------------------------------------------------
+    // DELETE PAYMENT REQUEST
+    // -------------------------------------------------------
+
+    await PaymentRequest.findByIdAndDelete(
+      req.params.id
+    );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Payment request deleted successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "DELETE PAYMENT REQUEST ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        error.message ||
+        "Failed to delete payment request.",
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // =========================================================
 // EMAIL ACCEPT PAYMENT
 // GET/POST /email-accept
@@ -1771,24 +2005,44 @@ const emailRejectPaymentRequest =
 // EXPORTS
 // =========================================================
 
+// module.exports = {
+
+//   createPaymentRequest,
+
+//   getAllPaymentRequests,
+
+//   getPaymentRequestById,
+
+//   getCustomerPaymentStatus,
+
+//   getPendingPaymentCount,
+
+//   acceptPaymentRequest,
+
+//   rejectPaymentRequest,
+
+//   emailAcceptPaymentRequest,
+
+//   emailRejectPaymentRequest,
+
+// };
+
+
+
+
+
+
+
+
 module.exports = {
-
   createPaymentRequest,
-
   getAllPaymentRequests,
-
   getPaymentRequestById,
-
   getCustomerPaymentStatus,
-
   getPendingPaymentCount,
-
   acceptPaymentRequest,
-
   rejectPaymentRequest,
-
+  deletePaymentRequest,
   emailAcceptPaymentRequest,
-
   emailRejectPaymentRequest,
-
 };
