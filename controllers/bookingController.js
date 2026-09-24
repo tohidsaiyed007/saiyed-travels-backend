@@ -816,11 +816,20 @@ const createBooking = async (req, res) => {
         flightId:
           dbFlight._id,
 
+        // userId:
+        //   req.user?._id ||
+        //   req.user?.id ||
+        //   req.body?.userId ||
+        //     req.headers["x-user-id"] ||
+        //   null,
+
+
         userId:
-          req.user?._id ||
-          req.user?.id ||
-          req.body?.userId ||
-          null,
+  req.user?._id ||
+  req.user?.id ||
+  req.body?.userId ||
+  req.headers["x-user-id"] ||
+  null,
 
         userRole:
           normalizedUserRole,

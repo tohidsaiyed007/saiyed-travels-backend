@@ -1154,112 +1154,222 @@ const acceptPaymentRequest =
       // CREATE CONFIRMED BOOKING
       // ===================================================
 
-      const fakeReq = {
-
-        body: {
-
-          ...bookingData,
 
 
-          // ------------------------------------------------
-          // CUSTOMER EMAIL
-          // ------------------------------------------------
 
-          customerEmail:
-            customerEmail,
+const fakeReq = {
+  body: {
+    ...bookingData,
 
-          email:
-            bookingData?.email ||
-            customerEmail,
+    // IMPORTANT:
+    // Customer ka original userId preserve karo
+    userId:
+      bookingData?.userId ||
+      bookingData?.user?._id ||
+      bookingData?.user?.id ||
+      null,
 
+    // ------------------------------------------------
+    // CUSTOMER EMAIL
+    // ------------------------------------------------
+    customerEmail: customerEmail,
 
-          // ------------------------------------------------
-          // BAGGAGE
-          // ------------------------------------------------
+    email:
+      bookingData?.email ||
+      customerEmail,
 
-          baggage: {
+    // ------------------------------------------------
+    // BAGGAGE
+    // ------------------------------------------------
+    baggage: {
+      ...(bookingData?.baggage || {}),
 
-            ...(bookingData?.baggage || {}),
+      cabinBaggage:
+        bookingData?.baggage?.cabinBaggage ||
+        bookingData?.baggage?.cabin ||
+        bookingData?.flight?.cabinBaggage ||
+        bookingData?.flight?.baggage?.cabin ||
+        bookingData?.cabinBaggage ||
+        "",
 
+      checkinBaggage:
+        bookingData?.baggage?.checkinBaggage ||
+        bookingData?.baggage?.checkin ||
+        bookingData?.baggage?.weight ||
+        bookingData?.flight?.checkinBaggage ||
+        bookingData?.flight?.baggage?.checkin ||
+        bookingData?.checkinBaggage ||
+        "",
+    },
 
-            cabinBaggage:
+    // ------------------------------------------------
+    // WHATSAPP
+    // ------------------------------------------------
+    whatsappNumber: whatsappNumber,
 
-              bookingData?.baggage
-                ?.cabinBaggage ||
+    // ------------------------------------------------
+    // PAYMENT
+    // ------------------------------------------------
+    paymentVerified: true,
+    paymentStatus: "Paid",
+    bookingStatus: "Confirmed",
+    paymentMethod: request.bankName,
+    paymentId: request.paymentId,
+  },
 
-              bookingData?.baggage
-                ?.cabin ||
-
-              bookingData?.flight
-                ?.cabinBaggage ||
-
-              bookingData?.flight
-                ?.baggage
-                ?.cabin ||
-
-              bookingData?.cabinBaggage ||
-
-              "",
-
-
-            checkinBaggage:
-
-              bookingData?.baggage
-                ?.checkinBaggage ||
-
-              bookingData?.baggage
-                ?.checkin ||
-
-              bookingData?.baggage
-                ?.weight ||
-
-              bookingData?.flight
-                ?.checkinBaggage ||
-
-              bookingData?.flight
-                ?.baggage
-                ?.checkin ||
-
-              bookingData?.checkinBaggage ||
-
-              "",
-          },
-
-
-          // ------------------------------------------------
-          // WHATSAPP
-          // ------------------------------------------------
-
-          whatsappNumber:
-            whatsappNumber,
+  user: req.user,
+};
 
 
-          // ------------------------------------------------
-          // PAYMENT
-          // ------------------------------------------------
-
-          paymentVerified:
-            true,
-
-          paymentStatus:
-            "Paid",
-
-          bookingStatus:
-            "Confirmed",
-
-          paymentMethod:
-            request.bankName,
-
-          paymentId:
-            request.paymentId,
-
-        },
 
 
-        user:
-          req.user,
 
-      };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // const fakeReq = {
+
+      //   body: {
+
+      //     ...bookingData,
+
+
+      //     // ------------------------------------------------
+      //     // CUSTOMER EMAIL
+      //     // ------------------------------------------------
+
+      //     customerEmail:
+      //       customerEmail,
+
+      //     email:
+      //       bookingData?.email ||
+      //       customerEmail,
+
+
+      //     // ------------------------------------------------
+      //     // BAGGAGE
+      //     // ------------------------------------------------
+
+      //     baggage: {
+
+      //       ...(bookingData?.baggage || {}),
+
+
+      //       cabinBaggage:
+
+      //         bookingData?.baggage
+      //           ?.cabinBaggage ||
+
+      //         bookingData?.baggage
+      //           ?.cabin ||
+
+      //         bookingData?.flight
+      //           ?.cabinBaggage ||
+
+      //         bookingData?.flight
+      //           ?.baggage
+      //           ?.cabin ||
+
+      //         bookingData?.cabinBaggage ||
+
+      //         "",
+
+
+      //       checkinBaggage:
+
+      //         bookingData?.baggage
+      //           ?.checkinBaggage ||
+
+      //         bookingData?.baggage
+      //           ?.checkin ||
+
+      //         bookingData?.baggage
+      //           ?.weight ||
+
+      //         bookingData?.flight
+      //           ?.checkinBaggage ||
+
+      //         bookingData?.flight
+      //           ?.baggage
+      //           ?.checkin ||
+
+      //         bookingData?.checkinBaggage ||
+
+      //         "",
+      //     },
+
+
+      //     // ------------------------------------------------
+      //     // WHATSAPP
+      //     // ------------------------------------------------
+
+      //     whatsappNumber:
+      //       whatsappNumber,
+
+
+      //     // ------------------------------------------------
+      //     // PAYMENT
+      //     // ------------------------------------------------
+
+      //     paymentVerified:
+      //       true,
+
+      //     paymentStatus:
+      //       "Paid",
+
+      //     bookingStatus:
+      //       "Confirmed",
+
+      //     paymentMethod:
+      //       request.bankName,
+
+      //     paymentId:
+      //       request.paymentId,
+
+      //   },
+
+
+      //   user:
+      //     req.user,
+
+      // };
 
 
       let createdBooking =
@@ -1802,26 +1912,6 @@ const deletePaymentRequest = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // =========================================================
 // EMAIL ACCEPT PAYMENT
 // GET/POST /email-accept
@@ -1999,38 +2089,6 @@ const emailRejectPaymentRequest =
     }
 
   };
-
-
-// =========================================================
-// EXPORTS
-// =========================================================
-
-// module.exports = {
-
-//   createPaymentRequest,
-
-//   getAllPaymentRequests,
-
-//   getPaymentRequestById,
-
-//   getCustomerPaymentStatus,
-
-//   getPendingPaymentCount,
-
-//   acceptPaymentRequest,
-
-//   rejectPaymentRequest,
-
-//   emailAcceptPaymentRequest,
-
-//   emailRejectPaymentRequest,
-
-// };
-
-
-
-
-
 
 
 
