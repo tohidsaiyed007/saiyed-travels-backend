@@ -4008,12 +4008,19 @@ const createBooking = async (req, res) => {
         });
 
 
-        const seatFare =
+  //       const seatFare =
+  // normalizedSeats.reduce(
+  //   (total, item) =>
+  //     total + numberValue(item.price),
+  //   0
+  // );
+
+  const seatFare =
   normalizedSeats.reduce(
     (total, item) =>
       total + numberValue(item.price),
     0
-  );
+  ) || numberValue(seatPrice);
 
             // =================================================
     // MEALS
