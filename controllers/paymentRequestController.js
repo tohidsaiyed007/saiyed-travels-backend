@@ -107,25 +107,25 @@ const createPaymentRequest = async (
     // FILE CHECK
     // -----------------------------------------------------
 
-    // if (!req.file) {
+    if (!req.file) {
 
-    //   return res.status(400).json({
+      return res.status(400).json({
 
-    //     success: false,
+        success: false,
 
-    //     message:
-    //       "Payment screenshot is required.",
+        message:
+          "Payment screenshot is required.",
 
-    //   });
+      });
 
-    // }
+    }
 
 
 
-    const screenshotUrl =
-  paymentRequest.screenshot
-    ? `${backendUrl}${paymentRequest.screenshot}`
-    : null;
+  //   const screenshotUrl =
+  // paymentRequest.screenshot
+  //   ? `${backendUrl}${paymentRequest.screenshot}`
+  //   : null;
 
 
     // -----------------------------------------------------
