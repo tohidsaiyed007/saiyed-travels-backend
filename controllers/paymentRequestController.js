@@ -440,9 +440,11 @@ const createPaymentRequest = async (
     // SCREENSHOT URL
     // -----------------------------------------------------
 
-    const screenshotPath =
-      `/uploads/payment-screenshots/${req.file.filename}`;
-
+    // const screenshotPath =
+    //   `/uploads/payment-screenshots/${req.file.filename}`;
+const screenshot = req.file
+  ? `/uploads/payment-screenshots/${req.file.filename}`
+  : "";
 
     // =====================================================
     // CREATE PAYMENT REQUEST
