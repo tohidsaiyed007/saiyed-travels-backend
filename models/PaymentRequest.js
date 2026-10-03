@@ -26,11 +26,15 @@ const paymentRequestSchema = new mongoose.Schema(
       trim: true,
     },
 
-    screenshot: {
-      type: String,
-      required: true,
-    },
-
+    // screenshot: {
+    //   type: String,
+    //   required: true,
+    // },
+screenshot: {
+  type: String,
+  required: false,
+  default: "",
+},
     paymentDateTime: {
       type: Date,
       required: true,
