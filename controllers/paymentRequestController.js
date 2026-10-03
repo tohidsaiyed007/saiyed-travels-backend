@@ -468,8 +468,11 @@ const screenshot = req.file
             paymentId
           ).trim(),
 
+        // screenshot:
+        //   screenshotPath,
+
         screenshot:
-          screenshotPath,
+  screenshot,
 
         paymentDateTime:
           parsedPaymentDate,
