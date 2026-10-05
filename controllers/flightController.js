@@ -672,6 +672,70 @@ const getFlightById = async (
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // =====================================================
 // UPDATE FLIGHT
 // =====================================================
@@ -683,12 +747,33 @@ const updateFlight = async (
   try {
     const data = req.body;
 
+    // -----------------------------------------------
+    // GET EXISTING FLIGHT
+    // -----------------------------------------------
+
+    const existingFlight =
+      await Flight.findById(
+        req.params.id
+      );
+
+    if (!existingFlight) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Flight not found.",
+      });
+    }
+
+    // -----------------------------------------------
+    // BASIC UPDATE DATA
+    // -----------------------------------------------
+
     const updateData = {
       ...data,
     };
 
     // -----------------------------------------------
-    // BASIC
+    // AIRLINE
     // -----------------------------------------------
 
     if (
@@ -706,6 +791,10 @@ const updateFlight = async (
         data.airlineName ||
         updateData.airline;
     }
+
+    // -----------------------------------------------
+    // FLIGHT NUMBER
+    // -----------------------------------------------
 
     if (
       data.flightNo !== undefined ||
@@ -726,12 +815,11 @@ const updateFlight = async (
     }
 
     // -----------------------------------------------
-    // FARES
+    // CUSTOMER FARES
     // -----------------------------------------------
 
     if (
-      data.adultFare !==
-      undefined
+      data.adultFare !== undefined
     ) {
       updateData.adultFare =
         Number(
@@ -740,8 +828,7 @@ const updateFlight = async (
     }
 
     if (
-      data.childFare !==
-      undefined
+      data.childFare !== undefined
     ) {
       updateData.childFare =
         Number(
@@ -750,14 +837,17 @@ const updateFlight = async (
     }
 
     if (
-      data.infantFare !==
-      undefined
+      data.infantFare !== undefined
     ) {
       updateData.infantFare =
         Number(
           data.infantFare
         );
     }
+
+    // -----------------------------------------------
+    // AGENT FARES
+    // -----------------------------------------------
 
     if (
       data.agentAdultFare !==
@@ -790,20 +880,231 @@ const updateFlight = async (
     }
 
     // -----------------------------------------------
-    // INVENTORY
+    // TICKET INVENTORY
     // -----------------------------------------------
 
     if (
       data.ticketInventory !==
       undefined
     ) {
-      updateData.ticketInventory =
+      const newInventory =
         Math.max(
           Number(
             data.ticketInventory
           ) || 0,
           0
         );
+
+      // Existing tickets
+      const oldTickets =
+        Array.isArray(
+          existingFlight.tickets
+        )
+          ? existingFlight.tickets
+          : [];
+
+      // ---------------------------------------------
+      // FIND BOOKED TICKETS
+      // ---------------------------------------------
+
+      const bookedTickets =
+        oldTickets.filter(
+          (ticket) => {
+            const status =
+              String(
+                ticket?.status || ""
+              )
+                .trim()
+                .toLowerCase();
+
+            return (
+              status !==
+                "available" &&
+              status !== ""
+            );
+          }
+        );
+
+      // ---------------------------------------------
+      // FIND AVAILABLE TICKETS
+      // ---------------------------------------------
+
+      const availableTickets =
+        oldTickets.filter(
+          (ticket) => {
+            const status =
+              String(
+                ticket?.status || ""
+              )
+                .trim()
+                .toLowerCase();
+
+            return (
+              status ===
+                "available" ||
+              status === ""
+            );
+          }
+        );
+
+      // ---------------------------------------------
+      // DO NOT ALLOW INVENTORY BELOW
+      // ALREADY BOOKED TICKETS
+      // ---------------------------------------------
+
+      if (
+        newInventory <
+        bookedTickets.length
+      ) {
+        return res.status(400).json({
+          success: false,
+
+          message:
+            `You cannot reduce tickets below ${bookedTickets.length} because ${bookedTickets.length} ticket(s) are already booked.`,
+        });
+      }
+
+      // ---------------------------------------------
+      // HOW MANY AVAILABLE TICKETS NEEDED
+      // ---------------------------------------------
+
+      const requiredAvailable =
+        Math.max(
+          newInventory -
+            bookedTickets.length,
+          0
+        );
+
+      // ---------------------------------------------
+      // KEEP BOOKED TICKETS
+      // + KEEP ONLY REQUIRED AVAILABLE TICKETS
+      // ---------------------------------------------
+
+      let updatedTickets = [
+        ...bookedTickets,
+        ...availableTickets.slice(
+          0,
+          requiredAvailable
+        ),
+      ];
+
+      // ---------------------------------------------
+      // CREATE NEW AVAILABLE TICKETS
+      // IF INVENTORY IS INCREASED
+      // ---------------------------------------------
+
+      if (
+        updatedTickets.length <
+        newInventory
+      ) {
+        const ticketsToCreate =
+          newInventory -
+          updatedTickets.length;
+
+        for (
+          let i = 0;
+          i < ticketsToCreate;
+          i++
+        ) {
+          updatedTickets.push({
+            pnr:
+              String(
+                existingFlight.pnr ||
+                  data.pnr ||
+                  ""
+              )
+                .trim()
+                .toUpperCase(),
+
+            status:
+              "Available",
+
+            bookingId:
+              "",
+
+            passengerName:
+              "",
+
+            bookedAt:
+              null,
+          });
+        }
+      }
+
+      // ---------------------------------------------
+      // SAVE TICKETS
+      // ---------------------------------------------
+
+      updateData.tickets =
+        updatedTickets;
+
+      // ---------------------------------------------
+      // TOTAL TICKETS
+      // ---------------------------------------------
+
+      updateData.totalTickets =
+        newInventory;
+
+      // ---------------------------------------------
+      // TICKET INVENTORY
+      // ---------------------------------------------
+
+      updateData.ticketInventory =
+        newInventory;
+
+      // ---------------------------------------------
+      // REMAINING AVAILABLE TICKETS
+      // ---------------------------------------------
+
+      updateData.remainingTickets =
+        updatedTickets.filter(
+          (ticket) =>
+            String(
+              ticket?.status || ""
+            )
+              .trim()
+              .toLowerCase() ===
+            "available"
+        ).length;
+
+      // ---------------------------------------------
+      // UPDATE CABIN SEATS
+      // ---------------------------------------------
+
+      if (
+        Array.isArray(
+          existingFlight.cabins
+        )
+      ) {
+        updateData.cabins =
+          existingFlight.cabins.map(
+            (cabin, index) => {
+              if (index === 0) {
+                return {
+                  ...cabin.toObject?.() ||
+                    cabin,
+
+                  totalSeats:
+                    newInventory,
+
+                  availableSeats:
+                    updatedTickets.filter(
+                      (ticket) =>
+                        String(
+                          ticket?.status ||
+                            ""
+                        )
+                          .trim()
+                          .toLowerCase() ===
+                        "available"
+                    ).length,
+                };
+              }
+
+              return cabin;
+            }
+          );
+      }
     }
 
     // -----------------------------------------------
@@ -830,9 +1131,8 @@ const updateFlight = async (
 
     if (
       data.cabinBaggage !==
-      undefined ||
-      data.cabinBag !==
-      undefined
+        undefined ||
+      data.cabinBag !== undefined
     ) {
       updateData.cabinBaggage =
         data.cabinBaggage !==
@@ -843,9 +1143,8 @@ const updateFlight = async (
 
     if (
       data.checkinBaggage !==
-      undefined ||
-      data.checkinBag !==
-      undefined
+        undefined ||
+      data.checkinBag !== undefined
     ) {
       updateData.checkinBaggage =
         data.checkinBaggage !==
@@ -868,7 +1167,7 @@ const updateFlight = async (
     }
 
     // -----------------------------------------------
-    // CLEAN UNDEFINED
+    // CLEAN UNDEFINED VALUES
     // -----------------------------------------------
 
     Object.keys(
@@ -883,7 +1182,7 @@ const updateFlight = async (
     });
 
     // -----------------------------------------------
-    // UPDATE
+    // UPDATE DATABASE
     // -----------------------------------------------
 
     const flight =
@@ -898,13 +1197,22 @@ const updateFlight = async (
         }
       );
 
+    // -----------------------------------------------
+    // CHECK FLIGHT
+    // -----------------------------------------------
+
     if (!flight) {
       return res.status(404).json({
         success: false,
+
         message:
           "Flight not found.",
       });
     }
+
+    // -----------------------------------------------
+    // SUCCESS
+    // -----------------------------------------------
 
     return res.status(200).json({
       success: true,
@@ -916,6 +1224,7 @@ const updateFlight = async (
     });
 
   } catch (error) {
+
     console.error(
       "UPDATE FLIGHT ERROR:",
       error
@@ -930,6 +1239,700 @@ const updateFlight = async (
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const updateFlight = async (
+//   req,
+//   res
+// ) => {
+//   try {
+//     const data = req.body;
+
+//     const updateData = {
+//       ...data,
+//     };
+
+
+
+
+// // // =====================================================
+// // // UPDATE FLIGHT
+// // // =====================================================
+
+// // const updateFlight = async (req, res) => {
+// //   try {
+// //     const data = req.body;
+
+// //     console.log("UPDATE FLIGHT DATA:", data);
+
+// //     const updateData = {
+// //       ...data,
+// //     };
+
+// //     // -----------------------------------------------
+// //     // GET EXISTING FLIGHT
+// //     // -----------------------------------------------
+
+// //     const existingFlight = await Flight.findById(
+// //       req.params.id
+// //     );
+
+// //     if (!existingFlight) {
+// //       return res.status(404).json({
+// //         success: false,
+// //         message: "Flight not found.",
+// //       });
+// //     }
+
+// //     // -----------------------------------------------
+// //     // BASIC
+// //     // -----------------------------------------------
+
+// //     if (
+// //       data.airline !== undefined ||
+// //       data.airlineName !== undefined
+// //     ) {
+// //       updateData.airline = String(
+// //         data.airline ||
+// //           data.airlineName ||
+// //           ""
+// //       ).trim();
+
+// //       updateData.airlineName =
+// //         data.airlineName ||
+// //         updateData.airline;
+// //     }
+
+// //     if (
+// //       data.flightNo !== undefined ||
+// //       data.flightNumber !== undefined
+// //     ) {
+// //       updateData.flightNo = String(
+// //         data.flightNo ||
+// //           data.flightNumber ||
+// //           ""
+// //       )
+// //         .trim()
+// //         .toUpperCase();
+
+// //       updateData.flightNumber =
+// //         data.flightNumber ||
+// //         updateData.flightNo;
+// //     }
+
+// //     // -----------------------------------------------
+// //     // FARES
+// //     // -----------------------------------------------
+
+// //     if (data.adultFare !== undefined) {
+// //       updateData.adultFare =
+// //         Number(data.adultFare);
+// //     }
+
+// //     if (data.childFare !== undefined) {
+// //       updateData.childFare =
+// //         Number(data.childFare);
+// //     }
+
+// //     if (data.infantFare !== undefined) {
+// //       updateData.infantFare =
+// //         Number(data.infantFare);
+// //     }
+
+// //     if (data.agentAdultFare !== undefined) {
+// //       updateData.agentAdultFare =
+// //         Number(data.agentAdultFare);
+// //     }
+
+// //     if (data.agentChildFare !== undefined) {
+// //       updateData.agentChildFare =
+// //         Number(data.agentChildFare);
+// //     }
+
+// //     if (data.agentInfantFare !== undefined) {
+// //       updateData.agentInfantFare =
+// //         Number(data.agentInfantFare);
+// //     }
+
+// //     // -----------------------------------------------
+// //     // INVENTORY
+// //     // -----------------------------------------------
+
+// //     if (data.ticketInventory !== undefined) {
+// //       const newInventory = Math.max(
+// //         Number(data.ticketInventory) || 0,
+// //         0
+// //       );
+
+// //       const oldTickets = Array.isArray(
+// //         existingFlight.tickets
+// //       )
+// //         ? existingFlight.tickets
+// //         : [];
+
+// //       const bookedTickets = oldTickets.filter(
+// //         (ticket) =>
+// //           String(ticket?.status || "")
+// //             .trim()
+// //             .toLowerCase() !== "available"
+// //       );
+
+// //       const availableTickets = oldTickets.filter(
+// //         (ticket) =>
+// //           String(ticket?.status || "")
+// //             .trim()
+// //             .toLowerCase() === "available"
+// //       );
+
+// //       // ---------------------------------------------
+// //       // CANNOT REDUCE BELOW ALREADY BOOKED TICKETS
+// //       // ---------------------------------------------
+
+// //       if (newInventory < bookedTickets.length) {
+// //         return res.status(400).json({
+// //           success: false,
+// //           message:
+// //             `You cannot reduce tickets below ${bookedTickets.length} because ${bookedTickets.length} ticket(s) are already booked.`,
+// //         });
+// //       }
+
+// //       // ---------------------------------------------
+// //       // KEEP ALL BOOKED TICKETS
+// //       // AND ADD/REMOVE AVAILABLE TICKETS
+// //       // ---------------------------------------------
+
+// //       const requiredAvailable =
+// //         newInventory - bookedTickets.length;
+
+// //       let updatedTickets = [
+// //         ...bookedTickets,
+// //         ...availableTickets.slice(
+// //           0,
+// //           requiredAvailable
+// //         ),
+// //       ];
+
+// //       // ---------------------------------------------
+// //       // IF MORE TICKETS ARE REQUIRED
+// //       // CREATE NEW AVAILABLE TICKETS
+// //       // ---------------------------------------------
+
+// //       if (
+// //         updatedTickets.length <
+// //         newInventory
+// //       ) {
+// //         const ticketsToCreate =
+// //           newInventory -
+// //           updatedTickets.length;
+
+// //         const defaultPnr =
+// //           String(
+// //             existingFlight.pnr ||
+// //               oldTickets[0]?.pnr ||
+// //               data.pnr ||
+// //               ""
+// //           )
+// //             .trim()
+// //             .toUpperCase();
+
+// //         for (
+// //           let i = 0;
+// //           i < ticketsToCreate;
+// //           i++
+// //         ) {
+// //           updatedTickets.push({
+// //             pnr: defaultPnr,
+
+// //             status: "Available",
+
+// //             bookingId: "",
+
+// //             passengerName: "",
+
+// //             bookedAt: null,
+// //           });
+// //         }
+// //       }
+
+// //       updateData.ticketInventory =
+// //         newInventory;
+
+// //       updateData.tickets =
+// //         updatedTickets;
+
+// //       console.log(
+// //         "TICKET INVENTORY UPDATED:",
+// //         {
+// //           oldCount: oldTickets.length,
+// //           bookedCount: bookedTickets.length,
+// //           newCount: updatedTickets.length,
+// //           newInventory,
+// //         }
+// //       );
+// //     }
+
+// //     // -----------------------------------------------
+// //     // PNR
+// //     // -----------------------------------------------
+
+// //     if (
+// //       data.pnr !== undefined ||
+// //       data.PNR !== undefined
+// //     ) {
+// //       updateData.pnr = String(
+// //         data.pnr ||
+// //           data.PNR ||
+// //           ""
+// //       )
+// //         .trim()
+// //         .toUpperCase();
+// //     }
+
+// //     // -----------------------------------------------
+// //     // BAGGAGE
+// //     // -----------------------------------------------
+
+// //     if (
+// //       data.cabinBaggage !== undefined ||
+// //       data.cabinBag !== undefined
+// //     ) {
+// //       updateData.cabinBaggage =
+// //         data.cabinBaggage !== undefined
+// //           ? data.cabinBaggage
+// //           : data.cabinBag;
+// //     }
+
+// //     if (
+// //       data.checkinBaggage !== undefined ||
+// //       data.checkinBag !== undefined
+// //     ) {
+// //       updateData.checkinBaggage =
+// //         data.checkinBaggage !== undefined
+// //           ? data.checkinBaggage
+// //           : data.checkinBag;
+// //     }
+
+// //     // -----------------------------------------------
+// //     // STOPS
+// //     // -----------------------------------------------
+
+// //     if (Array.isArray(data.stopDetails)) {
+// //       updateData.stopDetails =
+// //         data.stopDetails;
+// //     }
+
+// //     // -----------------------------------------------
+// //     // CABINS
+// //     // -----------------------------------------------
+
+// //     if (Array.isArray(data.cabins)) {
+// //       updateData.cabins =
+// //         data.cabins;
+// //     }
+
+// //     // -----------------------------------------------
+// //     // CLEAN UNDEFINED
+// //     // -----------------------------------------------
+
+// //     Object.keys(updateData).forEach(
+// //       (key) => {
+// //         if (
+// //           updateData[key] === undefined
+// //         ) {
+// //           delete updateData[key];
+// //         }
+// //       }
+// //     );
+
+// //     // -----------------------------------------------
+// //     // UPDATE DATABASE
+// //     // -----------------------------------------------
+
+// //     const flight =
+// //       await Flight.findByIdAndUpdate(
+// //         req.params.id,
+// //         updateData,
+// //         {
+// //           new: true,
+// //           runValidators: true,
+// //         }
+// //       );
+
+// //     if (!flight) {
+// //       return res.status(404).json({
+// //         success: false,
+// //         message: "Flight not found.",
+// //       });
+// //     }
+
+// //     console.log(
+// //       "FLIGHT UPDATED:",
+// //       {
+// //         id: flight._id,
+// //         ticketInventory:
+// //           flight.ticketInventory,
+// //         tickets:
+// //           flight.tickets?.length || 0,
+// //       }
+// //     );
+
+// //     return res.status(200).json({
+// //       success: true,
+
+// //       message:
+// //         "Flight updated successfully.",
+
+// //       flight,
+// //     });
+// //   } catch (error) {
+// //     console.error(
+// //       "UPDATE FLIGHT ERROR:",
+// //       error
+// //     );
+
+// //     return res.status(500).json({
+// //       success: false,
+
+// //       message:
+// //         error.message ||
+// //         "Failed to update flight.",
+// //     });
+// //   }
+// // };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//     // -----------------------------------------------
+//     // BASIC
+//     // -----------------------------------------------
+
+//     if (
+//       data.airline !== undefined ||
+//       data.airlineName !== undefined
+//     ) {
+//       updateData.airline =
+//         String(
+//           data.airline ||
+//             data.airlineName ||
+//             ""
+//         ).trim();
+
+//       updateData.airlineName =
+//         data.airlineName ||
+//         updateData.airline;
+//     }
+
+//     if (
+//       data.flightNo !== undefined ||
+//       data.flightNumber !== undefined
+//     ) {
+//       updateData.flightNo =
+//         String(
+//           data.flightNo ||
+//             data.flightNumber ||
+//             ""
+//         )
+//           .trim()
+//           .toUpperCase();
+
+//       updateData.flightNumber =
+//         data.flightNumber ||
+//         updateData.flightNo;
+//     }
+
+//     // -----------------------------------------------
+//     // FARES
+//     // -----------------------------------------------
+
+//     if (
+//       data.adultFare !==
+//       undefined
+//     ) {
+//       updateData.adultFare =
+//         Number(
+//           data.adultFare
+//         );
+//     }
+
+//     if (
+//       data.childFare !==
+//       undefined
+//     ) {
+//       updateData.childFare =
+//         Number(
+//           data.childFare
+//         );
+//     }
+
+//     if (
+//       data.infantFare !==
+//       undefined
+//     ) {
+//       updateData.infantFare =
+//         Number(
+//           data.infantFare
+//         );
+//     }
+
+//     if (
+//       data.agentAdultFare !==
+//       undefined
+//     ) {
+//       updateData.agentAdultFare =
+//         Number(
+//           data.agentAdultFare
+//         );
+//     }
+
+//     if (
+//       data.agentChildFare !==
+//       undefined
+//     ) {
+//       updateData.agentChildFare =
+//         Number(
+//           data.agentChildFare
+//         );
+//     }
+
+//     if (
+//       data.agentInfantFare !==
+//       undefined
+//     ) {
+//       updateData.agentInfantFare =
+//         Number(
+//           data.agentInfantFare
+//         );
+//     }
+
+//     // -----------------------------------------------
+//     // INVENTORY
+//     // -----------------------------------------------
+
+//     if (
+//       data.ticketInventory !==
+//       undefined
+//     ) {
+//       updateData.ticketInventory =
+//         Math.max(
+//           Number(
+//             data.ticketInventory
+//           ) || 0,
+//           0
+//         );
+//     }
+
+//     // -----------------------------------------------
+//     // PNR
+//     // -----------------------------------------------
+
+//     if (
+//       data.pnr !== undefined ||
+//       data.PNR !== undefined
+//     ) {
+//       updateData.pnr =
+//         String(
+//           data.pnr ||
+//             data.PNR ||
+//             ""
+//         )
+//           .trim()
+//           .toUpperCase();
+//     }
+
+//     // -----------------------------------------------
+//     // BAGGAGE
+//     // -----------------------------------------------
+
+//     if (
+//       data.cabinBaggage !==
+//       undefined ||
+//       data.cabinBag !==
+//       undefined
+//     ) {
+//       updateData.cabinBaggage =
+//         data.cabinBaggage !==
+//         undefined
+//           ? data.cabinBaggage
+//           : data.cabinBag;
+//     }
+
+//     if (
+//       data.checkinBaggage !==
+//       undefined ||
+//       data.checkinBag !==
+//       undefined
+//     ) {
+//       updateData.checkinBaggage =
+//         data.checkinBaggage !==
+//         undefined
+//           ? data.checkinBaggage
+//           : data.checkinBag;
+//     }
+
+//     // -----------------------------------------------
+//     // STOPS
+//     // -----------------------------------------------
+
+//     if (
+//       Array.isArray(
+//         data.stopDetails
+//       )
+//     ) {
+//       updateData.stopDetails =
+//         data.stopDetails;
+//     }
+
+//     // -----------------------------------------------
+//     // CLEAN UNDEFINED
+//     // -----------------------------------------------
+
+//     Object.keys(
+//       updateData
+//     ).forEach((key) => {
+//       if (
+//         updateData[key] ===
+//         undefined
+//       ) {
+//         delete updateData[key];
+//       }
+//     });
+
+//     // -----------------------------------------------
+//     // UPDATE
+//     // -----------------------------------------------
+
+//     const flight =
+//       await Flight.findByIdAndUpdate(
+//         req.params.id,
+
+//         updateData,
+
+//         {
+//           new: true,
+//           runValidators: true,
+//         }
+//       );
+
+//     if (!flight) {
+//       return res.status(404).json({
+//         success: false,
+//         message:
+//           "Flight not found.",
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+
+//       message:
+//         "Flight updated successfully.",
+
+//       flight,
+//     });
+
+//   } catch (error) {
+//     console.error(
+//       "UPDATE FLIGHT ERROR:",
+//       error
+//     );
+
+//     return res.status(500).json({
+//       success: false,
+
+//       message:
+//         error.message ||
+//         "Failed to update flight.",
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // =====================================================
 // DELETE FLIGHT
@@ -1178,6 +2181,15 @@ const searchFlights = async (
 // =====================================================
 // EXPORT
 // =====================================================
+
+// module.exports = {
+//   createFlight,
+//   getFlights,
+//   getFlightById,
+//   updateFlight,
+//   deleteFlight,
+//   searchFlights,
+// };
 
 module.exports = {
   createFlight,
