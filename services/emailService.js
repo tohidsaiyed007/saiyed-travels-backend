@@ -109,31 +109,6 @@ const value = (
    PDF GENERATOR
 ========================================================= */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const generateTicketPdf = (booking) => {
   return new Promise((resolve, reject) => {
     try {
