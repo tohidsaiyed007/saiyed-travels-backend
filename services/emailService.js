@@ -1027,51 +1027,175 @@ const generateTicketPdf = (booking) => {
         "Confirmed"
       );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// PASSENGER INFORMATION
+
+const passengerName = first(
+  [
+    "passengerName",
+    "name",
+    "fullName",
+    "passenger.name",
+    "passenger.fullName",
+    "passenger.passengerName",
+    "passengers.0.name",
+    "passengers.0.fullName",
+    "passengers.0.passengerName",
+    "passengerDetails.0.name",
+    "passengerDetails.0.fullName",
+    "passengerDetails.0.passengerName",
+    "passengers.0.firstName",
+    "passengers.0.first_name",
+    "passengerDetails.0.firstName",
+    "passengerDetails.0.first_name",
+  ],
+  "Passenger"
+);
+
+const passengerType = first(
+  [
+    "passengerType",
+    "type",
+    "passenger.type",
+    "passengers.0.type",
+    "passengerDetails.0.type",
+  ],
+  "Adult"
+);
+
+const email = first(
+  [
+    "email",
+    "customerEmail",
+    "userEmail",
+    "passenger.email",
+    "passengers.0.email",
+    "passengerDetails.0.email",
+  ],
+  "-"
+);
+
+const phone = first(
+  [
+    "phone",
+    "mobile",
+    "contactNumber",
+    "whatsappNumber",
+    "passenger.phone",
+    "passengers.0.phone",
+    "passengerDetails.0.phone",
+  ],
+  "-"
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // PASSENGER INFORMATION
-      const passengerName = first(
-        [
-          "passengerName",
-          "name",
-          "fullName",
-          "passenger.name",
-          "passengers.0.name",
-          "passengers.0.fullName",
-        ],
-        "Passenger"
-      );
+      // const passengerName = first(
+      //   [
+      //     "passengerName",
+      //     "name",
+      //     "fullName",
+      //     "passenger.name",
+      //     "passengers.0.name",
+      //     "passengers.0.fullName",
+      //   ],
+      //   "Passenger"
+      // );
 
-      const passengerType = first(
-        [
-          "passengerType",
-          "type",
-          "passenger.type",
-          "passengers.0.type",
-        ],
-        "Adult"
-      );
+      // const passengerType = first(
+      //   [
+      //     "passengerType",
+      //     "type",
+      //     "passenger.type",
+      //     "passengers.0.type",
+      //   ],
+      //   "Adult"
+      // );
 
-      const email = first(
-        [
-          "email",
-          "customerEmail",
-          "userEmail",
-          "passenger.email",
-          "passengers.0.email",
-        ],
-        "-"
-      );
+      // const email = first(
+      //   [
+      //     "email",
+      //     "customerEmail",
+      //     "userEmail",
+      //     "passenger.email",
+      //     "passengers.0.email",
+      //   ],
+      //   "-"
+      // );
 
-      const phone = first(
-        [
-          "phone",
-          "mobile",
-          "contactNumber",
-          "whatsappNumber",
-          "passenger.phone",
-          "passengers.0.phone",
-        ],
-        "-"
-      );
+      // const phone = first(
+      //   [
+      //     "phone",
+      //     "mobile",
+      //     "contactNumber",
+      //     "whatsappNumber",
+      //     "passenger.phone",
+      //     "passengers.0.phone",
+      //   ],
+      //   "-"
+      // );
 
       // FLIGHT INFORMATION
       const from = getFrom(booking);
@@ -1550,452 +1674,6 @@ const generateTicketPdf = (booking) => {
     }
   });
 };
-
-// const generateTicketPdf = (
-//   booking
-// ) => {
-//   return new Promise(
-//     (resolve, reject) => {
-//       try {
-//         const doc =
-//           new PDFDocument({
-//             size: "A4",
-//             margin: 40,
-//           });
-
-//         const chunks = [];
-
-//         doc.on(
-//           "data",
-//           (chunk) => {
-//             chunks.push(chunk);
-//           }
-//         );
-
-//         doc.on(
-//           "end",
-//           () => {
-//             resolve(
-//               Buffer.concat(chunks)
-//             );
-//           }
-//         );
-
-//         doc.on(
-//           "error",
-//           reject
-//         );
-
-
-//         /* =====================================================
-//            DATA
-//         ===================================================== */
-
-//         const pnr =
-//           displayValue(
-//             value(
-//               booking,
-//               ["pnr", "PNR"],
-//               "N/A"
-//             ),
-//             "N/A"
-//           );
-
-
-//         const status =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "bookingStatus",
-//                 "status",
-//               ],
-//               "Confirmed"
-//             ),
-//             "Confirmed"
-//           );
-
-
-//         const passengerName =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "name",
-//                 "passengerName",
-//                 "fullName",
-//               ],
-//               "Passenger"
-//             ),
-//             "Passenger"
-//           );
-
-
-//         const email =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "email",
-//                 "customerEmail",
-//               ],
-//               "-"
-//             ),
-//             "-"
-//           );
-
-
-//         const phone =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "phone",
-//                 "mobile",
-//                 "contactNumber",
-//               ],
-//               "-"
-//             ),
-//             "-"
-//           );
-
-
-//         const from =
-//           getFrom(booking);
-
-
-//         const to =
-//           getTo(booking);
-
-
-//         const flightNumber =
-//           getFlightNumber(booking);
-
-
-//         const departureDate =
-//           getDepartureDate(booking);
-
-
-//         const departureTime =
-//           getDepartureTime(booking);
-
-
-//         const passengers =
-//           getPassengerCount(
-//             booking
-//           );
-
-
-//         const rawAmount =
-//           booking?.amount ??
-//           booking?.totalAmount ??
-//           booking?.price ??
-//           booking?.totalPrice ??
-//           booking?.payment?.amount ??
-//           booking?.paymentDetails?.amount ??
-//           0;
-
-
-//         const amount =
-//           formatAmount(
-//             rawAmount
-//           );
-
-
-//         const paymentMethod =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "paymentMethod",
-//                 "paymentMode",
-//               ],
-//               "-"
-//             ),
-//             "-"
-//           );
-
-
-//         const paymentId =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "paymentId",
-//                 "utr",
-//                 "transactionId",
-//               ],
-//               "-"
-//             ),
-//             "-"
-//           );
-
-
-//         const bookingId =
-//           displayValue(
-//             value(
-//               booking,
-//               [
-//                 "_id",
-//                 "bookingId",
-//               ],
-//               "-"
-//             ),
-//             "-"
-//           );
-
-
-//         /* =====================================================
-//            HEADER
-//         ===================================================== */
-
-//         doc
-//           .fontSize(24)
-//           .font("Helvetica-Bold")
-//           .text(
-//             "SAIYED TRAVELS",
-//             {
-//               align: "center",
-//             }
-//           );
-
-
-//         doc
-//           .moveDown(0.3)
-//           .fontSize(15)
-//           .font("Helvetica")
-//           .text(
-//             "E-TICKET / BOOKING CONFIRMATION",
-//             {
-//               align: "center",
-//             }
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         /* =====================================================
-//            PNR
-//         ===================================================== */
-
-//         doc
-//           .fontSize(11)
-//           .font("Helvetica-Bold")
-//           .text(
-//             `PNR: ${pnr}`
-//           );
-
-
-//         doc
-//           .font("Helvetica")
-//           .text(
-//             `Status: ${status}`
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         /* =====================================================
-//            PASSENGER
-//         ===================================================== */
-
-//         doc
-//           .fontSize(14)
-//           .font("Helvetica-Bold")
-//           .text(
-//             "Passenger Details"
-//           );
-
-
-//         doc.moveDown(0.4);
-
-
-//         doc
-//           .fontSize(10)
-//           .font("Helvetica")
-//           .text(
-//             `Name: ${passengerName}`
-//           )
-//           .text(
-//             `Email: ${email}`
-//           )
-//           .text(
-//             `Phone: ${phone}`
-//           )
-//           .text(
-//             `Passengers: ${passengers}`
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         /* =====================================================
-//            FLIGHT
-//         ===================================================== */
-
-//         doc
-//           .fontSize(14)
-//           .font("Helvetica-Bold")
-//           .text(
-//             "Flight Details"
-//           );
-
-
-//         doc.moveDown(0.4);
-
-
-//         doc
-//           .fontSize(10)
-//           .font("Helvetica")
-//           .text(
-//             `From: ${from}`
-//           )
-//           .text(
-//             `To: ${to}`
-//           )
-//           .text(
-//             `Flight Number: ${flightNumber}`
-//           )
-//           .text(
-//             `Departure Date: ${departureDate}`
-//           )
-//           .text(
-//             `Departure Time: ${departureTime}`
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         /* =====================================================
-//            PAYMENT
-//         ===================================================== */
-
-//         doc
-//           .fontSize(14)
-//           .font("Helvetica-Bold")
-//           .text(
-//             "Payment Details"
-//           );
-
-
-//         doc.moveDown(0.4);
-
-
-//         doc
-//           .fontSize(10)
-//           .font("Helvetica")
-//           .text(
-//             `Amount: ₹${amount}`
-//           )
-//           .text(
-//             `Payment Method: ${paymentMethod}`
-//           )
-//           .text(
-//             `Payment ID / UTR: ${paymentId}`
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         /* =====================================================
-//            BOOKING
-//         ===================================================== */
-
-//         doc
-//           .fontSize(14)
-//           .font("Helvetica-Bold")
-//           .text(
-//             "Booking Information"
-//           );
-
-
-//         doc.moveDown(0.4);
-
-
-//         doc
-//           .fontSize(10)
-//           .font("Helvetica")
-//           .text(
-//             `Booking ID: ${bookingId}`
-//           )
-//           .text(
-//             "Payment verified by Saiyed Travels admin."
-//           );
-
-
-//         doc.moveDown(1);
-
-
-//         doc.text(
-//           "Please carry a valid ID proof during travel."
-//         );
-
-
-//         doc.moveDown(0.5);
-
-
-//         doc.text(
-//           "Please keep this e-ticket safely."
-//         );
-
-
-//         doc.moveDown(2);
-
-
-//         /* =====================================================
-//            FOOTER
-//         ===================================================== */
-
-//         doc
-//           .fontSize(9)
-//           .text(
-//             "Saiyed Travels | SAIYEDTRAVELS.COM",
-//             {
-//               align: "center",
-//             }
-//           );
-
-
-//         doc.end();
-
-//       } catch (error) {
-//         reject(error);
-//       }
-//     }
-//   );
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

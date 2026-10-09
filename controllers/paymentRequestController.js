@@ -1693,61 +1693,217 @@ try {
   // =====================================================
 // PREPARE CORRECT TICKET DATA
 // =====================================================
-
 const ticketBooking = {
   ...createdBooking,
 
-  // Customer details
+  // Passenger details
   name:
     createdBooking.name ||
+    createdBooking.passengerName ||
     bookingData.name ||
     bookingData.passengerName ||
+    bookingData.fullName ||
+    bookingData.passenger?.name ||
+    bookingData.passenger?.fullName ||
+    bookingData.passengers?.[0]?.name ||
+    bookingData.passengers?.[0]?.fullName ||
+    bookingData.passengerDetails?.[0]?.name ||
+    bookingData.passengerDetails?.[0]?.fullName ||
     "Passenger",
 
-  email: customerEmail,
-  customerEmail: customerEmail,
+  passengerName:
+    createdBooking.passengerName ||
+    bookingData.passengerName ||
+    bookingData.name ||
+    bookingData.fullName ||
+    bookingData.passenger?.name ||
+    bookingData.passenger?.fullName ||
+    bookingData.passengers?.[0]?.name ||
+    bookingData.passengers?.[0]?.fullName ||
+    bookingData.passengerDetails?.[0]?.name ||
+    bookingData.passengerDetails?.[0]?.fullName ||
+    "Passenger",
 
-  // Actual payment details from PaymentRequest
+  passenger:
+    createdBooking.passenger ||
+    bookingData.passenger ||
+    {},
+
+  passengers:
+    createdBooking.passengers ||
+    bookingData.passengers ||
+    [],
+
+  passengerDetails:
+    createdBooking.passengerDetails ||
+    bookingData.passengerDetails ||
+    [],
+
+  email: customerEmail,
+  customerEmail,
+
+  // Actual payment details
   amount: Number(request.amount),
   totalAmount: Number(request.amount),
-
   paymentMethod: request.bankName,
   paymentId: request.paymentId,
 
-  // Preserve original flight data
+  // Flight information
   flight:
     createdBooking.flight ||
-    bookingData.flight,
+    bookingData.flight ||
+    {},
 
   flightDetails:
     createdBooking.flightDetails ||
-    bookingData.flightDetails,
+    bookingData.flightDetails ||
+    {},
 
   selectedFlight:
     createdBooking.selectedFlight ||
-    bookingData.selectedFlight,
+    bookingData.selectedFlight ||
+    {},
 
   flightData:
     createdBooking.flightData ||
-    bookingData.flightData,
+    bookingData.flightData ||
+    {},
 
-  // Preserve route and date information
+  // Route
   from:
     createdBooking.from ||
-    bookingData.from,
+    bookingData.from ||
+    bookingData.source ||
+    bookingData.origin ||
+    bookingData.flight?.from ||
+    bookingData.flightDetails?.from ||
+    bookingData.selectedFlight?.from ||
+    bookingData.flightData?.from ||
+    "",
 
   to:
     createdBooking.to ||
-    bookingData.to,
+    bookingData.to ||
+    bookingData.destination ||
+    bookingData.flight?.to ||
+    bookingData.flightDetails?.to ||
+    bookingData.selectedFlight?.to ||
+    bookingData.flightData?.to ||
+    "",
 
+  // Departure
   departureDate:
     createdBooking.departureDate ||
-    bookingData.departureDate,
+    bookingData.departureDate ||
+    bookingData.travelDate ||
+    bookingData.flight?.departureDate ||
+    bookingData.flightDetails?.departureDate ||
+    bookingData.selectedFlight?.departureDate ||
+    bookingData.flightData?.departureDate ||
+    "",
 
   departureTime:
     createdBooking.departureTime ||
-    bookingData.departureTime,
+    bookingData.departureTime ||
+    bookingData.flight?.departureTime ||
+    bookingData.flightDetails?.departureTime ||
+    bookingData.selectedFlight?.departureTime ||
+    bookingData.flightData?.departureTime ||
+    "",
+
+  // Arrival
+  arrivalDate:
+    createdBooking.arrivalDate ||
+    bookingData.arrivalDate ||
+    bookingData.flight?.arrivalDate ||
+    bookingData.flightDetails?.arrivalDate ||
+    bookingData.selectedFlight?.arrivalDate ||
+    bookingData.flightData?.arrivalDate ||
+    "",
+
+  arrivalTime:
+    createdBooking.arrivalTime ||
+    bookingData.arrivalTime ||
+    bookingData.flight?.arrivalTime ||
+    bookingData.flightDetails?.arrivalTime ||
+    bookingData.selectedFlight?.arrivalTime ||
+    bookingData.flightData?.arrivalTime ||
+    "",
+
+  // Baggage
+  baggage:
+    createdBooking.baggage ||
+    bookingData.baggage ||
+    bookingData.flight?.baggage ||
+    bookingData.flightDetails?.baggage ||
+    bookingData.selectedFlight?.baggage ||
+    bookingData.flightData?.baggage ||
+    {},
+
+  cabinBaggage:
+    createdBooking.cabinBaggage ||
+    bookingData.cabinBaggage ||
+    "",
+
+  checkinBaggage:
+    createdBooking.checkinBaggage ||
+    bookingData.checkinBaggage ||
+    "",
 };
+// const ticketBooking = {
+//   ...createdBooking,
+
+//   // Customer details
+//   name:
+//     createdBooking.name ||
+//     bookingData.name ||
+//     bookingData.passengerName ||
+//     "Passenger",
+
+//   email: customerEmail,
+//   customerEmail: customerEmail,
+
+//   // Actual payment details from PaymentRequest
+//   amount: Number(request.amount),
+//   totalAmount: Number(request.amount),
+
+//   paymentMethod: request.bankName,
+//   paymentId: request.paymentId,
+
+//   // Preserve original flight data
+//   flight:
+//     createdBooking.flight ||
+//     bookingData.flight,
+
+//   flightDetails:
+//     createdBooking.flightDetails ||
+//     bookingData.flightDetails,
+
+//   selectedFlight:
+//     createdBooking.selectedFlight ||
+//     bookingData.selectedFlight,
+
+//   flightData:
+//     createdBooking.flightData ||
+//     bookingData.flightData,
+
+//   // Preserve route and date information
+//   from:
+//     createdBooking.from ||
+//     bookingData.from,
+
+//   to:
+//     createdBooking.to ||
+//     bookingData.to,
+
+//   departureDate:
+//     createdBooking.departureDate ||
+//     bookingData.departureDate,
+
+//   departureTime:
+//     createdBooking.departureTime ||
+//     bookingData.departureTime,
+// };
 
 console.log("TICKET DATA:", {
   bookingId: ticketBooking._id,
