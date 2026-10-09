@@ -8,9 +8,15 @@ const User = require("../models/User");
 
 const bookingController = require("./bookingController");
 
+// const {
+//   sendAdminPaymentNotification,
+//   sendTicketEmail,
+// } = require("../services/emailService");
+
 const {
   sendAdminPaymentNotification,
   sendTicketEmail,
+  generateTicketPdf,
 } = require("../services/emailService");
 
 const {
@@ -1656,6 +1662,67 @@ const acceptPaymentRequest = async (
     await request.save();
 
 
+
+
+
+
+
+
+
+
+
+// =====================================================
+// GENERATE TICKET PDF ONCE
+// =====================================================
+
+let ticketPdfBuffer = null;
+
+try {
+  ticketPdfBuffer = await generateTicketPdf(
+    createdBooking
+  );
+
+  console.log(
+    "TICKET PDF GENERATED SUCCESSFULLY"
+  );
+
+} catch (pdfError) {
+  console.error(
+    "TICKET PDF GENERATION ERROR:",
+    pdfError
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // =====================================================
     // CUSTOMER TICKET EMAIL
     // =====================================================
@@ -1666,15 +1733,33 @@ const acceptPaymentRequest = async (
 
     try {
 
-      await sendTicketEmail({
+      // await sendTicketEmail({
 
-        to:
-          customerEmail,
+      //   to:
+      //     customerEmail,
 
-        booking:
-          createdBooking,
+      //   booking:
+      //     createdBooking,
 
-      });
+      // });
+
+
+
+      if (!ticketPdfBuffer) {
+  throw new Error(
+    "Ticket PDF could not be generated."
+  );
+}
+
+await sendTicketEmail({
+
+  to: customerEmail,
+
+  booking: createdBooking,
+
+  pdfBuffer: ticketPdfBuffer,
+
+});
 
 
       customerEmailSent =
@@ -1713,15 +1798,33 @@ const acceptPaymentRequest = async (
 
       if (adminEmail) {
 
-        await sendTicketEmail({
+        // await sendTicketEmail({
 
-          to:
-            adminEmail,
+        //   to:
+        //     adminEmail,
 
-          booking:
-            createdBooking,
+        //   booking:
+        //     createdBooking,
 
-        });
+        // });
+
+
+
+        if (!ticketPdfBuffer) {
+  throw new Error(
+    "Ticket PDF could not be generated."
+  );
+}
+
+await sendTicketEmail({
+
+  to: adminEmail,
+
+  booking: createdBooking,
+
+  pdfBuffer: ticketPdfBuffer,
+
+});
 
 
         adminEmailSent =
@@ -1803,7 +1906,7 @@ const acceptPaymentRequest = async (
       message:
         "Payment accepted and booking confirmed successfully.",
 
-      paymentRequest:
+      paymentRequest: 
         request,
 
       booking:
@@ -2253,11 +2356,6 @@ const emailAcceptPaymentRequest =
   };
 
 
-// =========================================================
-// EMAIL REJECT PAYMENT REQUEST
-// GET /api/payment-requests/:id/email-reject
-// =========================================================
-
 const emailRejectPaymentRequest =
   async (
     req,
@@ -2402,36 +2500,6 @@ const emailRejectPaymentRequest =
     }
 
   };
-
-
-// =========================================================
-// EXPORTS
-// =========================================================
-
-// module.exports = {
-
-//   createPaymentRequest,
-
-//   getAllPaymentRequests,
-
-//   getPaymentRequestById,
-
-//   getCustomerPaymentStatus,
-
-//   getPendingPaymentCount,
-
-//   acceptPaymentRequest,
-
-//   rejectPaymentRequest,
-
-//   deletePaymentRequest,
-
-//   emailAcceptPaymentRequest,
-
-//   emailRejectPaymentRequest,
-
-// };
-
 
 module.exports = {
   createPaymentRequest,
