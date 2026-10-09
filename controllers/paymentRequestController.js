@@ -1678,9 +1678,90 @@ const acceptPaymentRequest = async (
 let ticketPdfBuffer = null;
 
 try {
-  ticketPdfBuffer = await generateTicketPdf(
-    createdBooking
-  );
+  // ticketPdfBuffer = await generateTicketPdf(
+  //   createdBooking
+  // );
+
+
+
+
+
+
+
+
+
+  // =====================================================
+// PREPARE CORRECT TICKET DATA
+// =====================================================
+
+const ticketBooking = {
+  ...createdBooking,
+
+  // Customer details
+  name:
+    createdBooking.name ||
+    bookingData.name ||
+    bookingData.passengerName ||
+    "Passenger",
+
+  email: customerEmail,
+  customerEmail: customerEmail,
+
+  // Actual payment details from PaymentRequest
+  amount: Number(request.amount),
+  totalAmount: Number(request.amount),
+
+  paymentMethod: request.bankName,
+  paymentId: request.paymentId,
+
+  // Preserve original flight data
+  flight:
+    createdBooking.flight ||
+    bookingData.flight,
+
+  flightDetails:
+    createdBooking.flightDetails ||
+    bookingData.flightDetails,
+
+  selectedFlight:
+    createdBooking.selectedFlight ||
+    bookingData.selectedFlight,
+
+  flightData:
+    createdBooking.flightData ||
+    bookingData.flightData,
+
+  // Preserve route and date information
+  from:
+    createdBooking.from ||
+    bookingData.from,
+
+  to:
+    createdBooking.to ||
+    bookingData.to,
+
+  departureDate:
+    createdBooking.departureDate ||
+    bookingData.departureDate,
+
+  departureTime:
+    createdBooking.departureTime ||
+    bookingData.departureTime,
+};
+
+console.log("TICKET DATA:", {
+  bookingId: ticketBooking._id,
+  from: ticketBooking.from,
+  to: ticketBooking.to,
+  amount: ticketBooking.amount,
+  paymentMethod: ticketBooking.paymentMethod,
+  paymentId: ticketBooking.paymentId,
+});
+
+// Generate PDF once
+ticketPdfBuffer = await generateTicketPdf(ticketBooking);
+
+console.log("TICKET PDF GENERATED SUCCESSFULLY");
 
   console.log(
     "TICKET PDF GENERATED SUCCESSFULLY"
