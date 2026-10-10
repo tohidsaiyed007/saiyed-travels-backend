@@ -36,86 +36,48 @@ const normalizeWhatsAppNumber = (number) => {
 // SEND TICKET PDF ON WHATSAPP
 // =====================================================
 
+
+
+
 const sendTicketWhatsApp = async ({
   to,
   booking,
+  pdfBuffer,
 }) => {
-
-  // ---------------------------------------------------
-  // CHECK NUMBER
-  // ---------------------------------------------------
-
   if (!to) {
     throw new Error(
       "Customer WhatsApp number is missing."
     );
   }
 
-  // ---------------------------------------------------
-  // CHECK TOKEN
-  // ---------------------------------------------------
+  if (!booking) {
+    throw new Error(
+      "Customer booking data is missing."
+    );
+  }
+
+  if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
+    throw new Error(
+      "Customer ticket PDF is missing."
+    );
+  }
 
   const accessToken =
     process.env.WHATSAPP_ACCESS_TOKEN?.trim();
 
-  if (!accessToken) {
-    throw new Error(
-      "WHATSAPP_ACCESS_TOKEN is missing in Render Environment."
-    );
-  }
-
-  // ---------------------------------------------------
-  // CHECK PHONE NUMBER ID
-  // ---------------------------------------------------
-
   const phoneNumberId =
     process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
 
-  if (!phoneNumberId) {
+  if (!accessToken || !phoneNumberId) {
     throw new Error(
-      "WHATSAPP_PHONE_NUMBER_ID is missing in Render Environment."
+      "WhatsApp environment variables are missing."
     );
   }
-
-  // ---------------------------------------------------
-  // API VERSION
-  // ---------------------------------------------------
 
   const apiVersion =
     process.env.WHATSAPP_API_VERSION || "v25.0";
 
-  // ---------------------------------------------------
-  // NORMALIZE NUMBER
-  // ---------------------------------------------------
-
-  const whatsappNumber =
-    normalizeWhatsAppNumber(to);
-
-  console.log(
-    "WHATSAPP TICKET START"
-  );
-
-  console.log(
-    "Customer WhatsApp:",
-    whatsappNumber
-  );
-
-  // ---------------------------------------------------
-  // GENERATE TICKET PDF
-  // ---------------------------------------------------
-
-  const pdfBuffer =
-    await generateTicketPdf(booking);
-
-  if (!pdfBuffer) {
-    throw new Error(
-      "Ticket PDF could not be generated."
-    );
-  }
-
-  // ===================================================
-  // UPLOAD PDF TO WHATSAPP
-  // ===================================================
+  const whatsappNumber = normalizeWhatsAppNumber(to);
 
   const uploadUrl =
     `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/media`;
@@ -129,196 +91,64 @@ const sendTicketWhatsApp = async ({
 
   uploadForm.append(
     "file",
-    new Blob(
-      [pdfBuffer],
-      {
-        type: "application/pdf",
-      }
-    ),
+    new Blob([pdfBuffer], {
+      type: "application/pdf",
+    }),
     "Saiyed-Travels-Ticket.pdf"
   );
 
-  const uploadResponse =
-    await fetch(
-      uploadUrl,
-      {
-        method: "POST",
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: uploadForm,
+  });
 
-        headers: {
-          Authorization:
-            `Bearer ${accessToken}`,
-        },
+  const uploadData = await uploadResponse.json();
 
-        body: uploadForm,
-      }
-    );
-
-  const uploadData =
-    await uploadResponse.json();
-
-  // ---------------------------------------------------
-  // HANDLE UPLOAD ERROR
-  // ---------------------------------------------------
-
-  if (!uploadResponse.ok) {
-
-    console.error(
-      "WHATSAPP PDF UPLOAD ERROR:"
-    );
-
-    console.error(
-      JSON.stringify(
-        uploadData,
-        null,
-        2
-      )
-    );
-
-    if (
-      uploadData?.error?.code === 190
-    ) {
-      throw new Error(
-        "WhatsApp access token is invalid or expired. Please update WHATSAPP_ACCESS_TOKEN in Render."
-      );
-    }
-
+  if (!uploadResponse.ok || !uploadData.id) {
     throw new Error(
       uploadData?.error?.message ||
       "WhatsApp PDF upload failed."
     );
   }
 
-  const mediaId =
-    uploadData?.id;
-
-  if (!mediaId) {
-    throw new Error(
-      "WhatsApp media ID was not returned."
-    );
-  }
-
-  console.log(
-    "WHATSAPP PDF UPLOADED:",
-    mediaId
-  );
-
-  // ===================================================
-  // SEND PDF TO CUSTOMER
-  // ===================================================
-
   const messageUrl =
     `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`;
 
-  const messageResponse =
-    await fetch(
-      messageUrl,
-      {
-        method: "POST",
+  const messageResponse = await fetch(messageUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to: whatsappNumber,
+      type: "document",
+      document: {
+        id: uploadData.id,
+        filename: "Saiyed-Travels-Ticket.pdf",
+        caption:
+          "Your Saiyed Travels booking is confirmed. Please find your ticket attached.",
+      },
+    }),
+  });
 
-        headers: {
-          Authorization:
-            `Bearer ${accessToken}`,
-
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-
-          messaging_product:
-            "whatsapp",
-
-          to:
-            whatsappNumber,
-
-          type:
-            "document",
-
-          document: {
-
-            id:
-              mediaId,
-
-            filename:
-              "Saiyed-Travels-Ticket.pdf",
-
-            caption:
-              "Your Saiyed Travels booking is confirmed. Please find your ticket attached.",
-
-          },
-
-        }),
-      }
-    );
-
-  const messageData =
-    await messageResponse.json();
-
-  // ---------------------------------------------------
-  // HANDLE MESSAGE ERROR
-  // ---------------------------------------------------
+  const messageData = await messageResponse.json();
 
   if (!messageResponse.ok) {
-
-    console.error(
-      "WHATSAPP TICKET SEND ERROR:"
-    );
-
-    console.error(
-      JSON.stringify(
-        messageData,
-        null,
-        2
-      )
-    );
-
-    if (
-      messageData?.error?.code === 190
-    ) {
-      throw new Error(
-        "WhatsApp access token is invalid or expired. Please update WHATSAPP_ACCESS_TOKEN in Render."
-      );
-    }
-
     throw new Error(
       messageData?.error?.message ||
       "WhatsApp ticket sending failed."
     );
   }
 
-  // ===================================================
-  // SUCCESS
-  // ===================================================
-
-  const messageId =
-    messageData?.messages?.[0]?.id || null;
-
-  console.log(
-    "===================================="
-  );
-
-  console.log(
-    "WHATSAPP TICKET SENT SUCCESSFULLY"
-  );
-
-  console.log(
-    "CUSTOMER NUMBER:",
-    whatsappNumber
-  );
-
-  console.log(
-    "WHATSAPP MESSAGE ID:",
-    messageId
-  );
-
-  console.log(
-    "===================================="
-  );
-
   return {
     success: true,
     whatsappNumber,
-    messageId,
+    messageId: messageData?.messages?.[0]?.id || null,
   };
 };
 
