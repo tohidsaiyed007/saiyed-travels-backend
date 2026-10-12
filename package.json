@@ -5,10 +5,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "postinstall": "npx puppeteer browsers install chrome"
-  },
+  "dev": "nodemon server.js",
+  "start": "node server.js",
+  "postinstall": "npx puppeteer browsers install chrome"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
