@@ -15,14 +15,25 @@ const generateSuccessTicketPdf = async (booking) => {
       "https://saiyed-travel.vercel.app"
     ).replace(/\/+$/, "");
 
+    // browser = await puppeteer.launch({
+    //   headless: true,
+    //   args: [
+    //     "--no-sandbox",
+    //     "--disable-setuid-sandbox",
+    //     "--disable-dev-shm-usage",
+    //   ],
+    // });  
+
+
     browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
-    });
+  headless: true,
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+  ],
+  timeout: 60000,
+});
 
     const page = await browser.newPage();
 
