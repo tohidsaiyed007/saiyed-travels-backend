@@ -3771,14 +3771,23 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const bookingController = require("./bookingController");
 
+// const {
+//   sendAdminPaymentNotification,
+//   sendTicketEmail,
+// } = require("../services/emailService");
+
+// const {
+//   generateSuccessTicketPdf,
+// } = require("../services/successTicketPdfService");
+
+
+
 const {
   sendAdminPaymentNotification,
   sendTicketEmail,
+  generateTicketPdf,
 } = require("../services/emailService");
 
-const {
-  generateSuccessTicketPdf,
-} = require("../services/successTicketPdfService");
 
 const {
   sendTicketWhatsApp,
@@ -4450,7 +4459,8 @@ const acceptPaymentRequest = async (req, res) => {
         "",
     };
 
-    const ticketPdfBuffer = await generateSuccessTicketPdf(ticketBooking);
+    // const ticketPdfBuffer = await generateSuccessTicketPdf(ticketBooking);
+    const ticketPdfBuffer = await generateTicketPdf(ticketBooking);
 
     if (!Buffer.isBuffer(ticketPdfBuffer) || ticketPdfBuffer.length === 0) {
       throw new Error("Ticket PDF could not be generated.");
