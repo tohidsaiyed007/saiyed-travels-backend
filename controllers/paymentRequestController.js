@@ -584,7 +584,11 @@ const acceptPaymentRequest = async (req, res) => {
 // ============================================
 // COMPLETE TICKET DATA WITH ALL PASSENGERS
 // ============================================
-
+const savedBooking =
+  typeof createdBooking.toObject === "function"
+    ? createdBooking.toObject()
+    : createdBooking;
+    
 const ticketBooking = {
   ...bookingData,
   ...savedBooking,
